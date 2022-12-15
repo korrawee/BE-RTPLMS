@@ -6,7 +6,7 @@ SET search_path = public;
 
 CREATE TABLE accounts(
         account_id text primary key,
-        username text not null,
+        username text not null, -- add unique in production
         password text,
         fullname text,
         role text not null,
