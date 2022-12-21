@@ -18,11 +18,10 @@ export class AccountService {
         const values: Array<any> = Object.values(createAccountDto);
         
         const query: string = `insert into ${this.entityName}(${columns}) 
-        values ('${values[0]}', '${values[1]}', '${values[2]}', '${values[3]}'
-                '${values[4]}', ${values[5]}, ${JSON.stringify(values[6])}, '${values[7]}') 
+        values ('${values[0]}', '${values[1]}', '${values[2]}', '${values[3]}',
+                '${values[4]}', '${values[5]}', '${JSON.stringify(values[6])}', '${values[7]}') 
         returning *
         `;
-        console.log(query);
         await this.cnn.query(query)
         .then((res: dbResponse) => {
             data = res.rows;
