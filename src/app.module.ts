@@ -5,10 +5,16 @@ import { DbModule } from './db/db.module';
 import { AccountController } from './account/account.controller';
 import { AccountService } from './account/account.service';
 import { AccountModule } from './account/account.module';
+import { DashboardController } from './screens/dashboard/dashboard.controller';
+import { DashboardService } from './screens/dashboard/dashboard.service';
+import { ShiftService } from './shift/shift.service';
+import { DepartmentService } from './department/department.service';
+import { DepartmentController } from './department/department.controller';
+import { ShiftController } from './shift/shift.controller';
 
 @Module({
   imports: [DbModule, AccountModule],
-  controllers: [AppController, AccountController],
-  providers: [AppService, AccountService],
+  controllers: [AppController, AccountController, DashboardController, DepartmentController, ShiftController],
+  providers: [AppService, AccountService, DashboardService, ShiftService, DepartmentService],
 })
 export class AppModule {}
