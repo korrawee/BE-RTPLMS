@@ -1,7 +1,7 @@
 #!/bin/bash
+# Create your own .env files
+source .env
 
-SCRIPTS_DIR=`dirname "$0"`
-PGPASSWORD=1234
 
 cat "$SCRIPTS_DIR/../sql/schema.sql" "$SCRIPTS_DIR/../sql/dev-seeds.sql" \
-    | psql -U korrawee_ -d test_seed -p 5432 -h localhost -1 -f -
+    | psql -U $POSTGRES_USER -d $POSTGRES_DB -p $POSTGRES_PORT -h $POSTGRES_HOST -1 -f -
