@@ -1,3 +1,4 @@
+import { ConfigModule } from '@nestjs/config';
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -12,8 +13,14 @@ import { DepartmentService } from './department/department.service';
 import { DepartmentController } from './department/department.controller';
 import { ShiftController } from './shift/shift.controller';
 
+
 @Module({
-  imports: [DbModule, AccountModule],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: `.env`,
+    }), 
+    DbModule, AccountModule],
   controllers: [AppController, AccountController, DashboardController, DepartmentController, ShiftController],
   providers: [AppService, AccountService, DashboardService, ShiftService, DepartmentService],
 })
