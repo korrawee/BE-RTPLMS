@@ -9,18 +9,26 @@ import { ShiftInDepartmentDto } from './dto/ShiftInDepartment.dto';
 export class ShiftService {
     constructor(@Inject(PG_CONNECTION) private readonly cnn: any){}
 
-    async getShiftsById(departmentId: string){
-        const query: string = `select shift_code from _controls where department_id='${departmentId}'`;
-        const shiftInDepartment: ShiftforDashboardDto[] = await this.cnn.query(query)
-        .then(async (res: dbResponse) => {
-            return await this.getshifts(res.rows);
-        })
-        .catch((error) => {
-            console.error(error);
-            return {status: 200, message: error.message};
-        });
+    async getShiftsById(departmentsId: string[]){
 
-        return shiftInDepartment
+        const result: Promise<ShiftforDashboardDto[]> = Promise.all(departmentsId.map(async (departmentId: string)=>{
+
+            const query: string = `select shift_code from _controls where department_id='${departmentId}'`;
+
+            const shiftInDepartment: ShiftforDashboardDto = await this.cnn.query(query)
+
+            .then(async (res: dbResponse) => {
+                console.log(await this.getshifts(res.rows));
+                return await this.getshifts(res.rows);
+            })
+            .catch((error) => {
+                console.error(error);
+                return {status: 200, message: error.message};
+            });
+            return shiftInDepartment;
+        }));
+
+        return result;
     }
 
     private async getshifts(shiftInDepartment: ShiftInDepartmentDto[]) {

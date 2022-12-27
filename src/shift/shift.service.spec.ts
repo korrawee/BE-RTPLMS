@@ -56,6 +56,6 @@ describe('ShiftService', () => {
       }
     ];
 
-    expect(service.getShiftsById('1')).toEqual(dto)
+    expect(service.getShiftsById(['1'])).toEqual(dto)
   });
 });
