@@ -7,11 +7,12 @@ import { DepartmentforDashboardDto } from './dto/DepartmentforDashboard.dto';
 export class DepartmentService {
     constructor(@Inject(PG_CONNECTION) private readonly cnn: any){}
 
-    async getDepartmentById(mngId: string){
+    async getDepartmentsById(mngId: string){
         const query = `select department_id, name from departments where mng_id='${mngId}'`;
-        const department: DepartmentforDashboardDto = await this.cnn.query(query)
+        const department: DepartmentforDashboardDto[] = await this.cnn.query(query)
         .then(async (res: dbResponse) => {
-            return res.rows.pop();
+            console.log(res.rows);
+            return res.rows;
 
         })
         .catch((error) => {

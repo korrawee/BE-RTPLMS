@@ -1,4 +1,12 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Get, Param } from '@nestjs/common';
+import { DepartmentService } from './department.service';
 
-@Controller('department')
-export class DepartmentController {}
+@Controller('departments')
+export class DepartmentController {
+    constructor(private readonly departmentService: DepartmentService){}
+
+    @Get('/:id')
+    getDepartments(@Param('id') id: string){
+        return this.departmentService.getDepartmentsById(id);
+    }
+}

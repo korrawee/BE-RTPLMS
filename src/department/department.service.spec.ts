@@ -7,11 +7,15 @@ describe('DepartmentService', () => {
   let service: DepartmentService;
 
   const mockRepository = {
-    getDepartmentById: jest.fn().mockImplementation((dto: DepartmentforDashboardDto) => {
-      return Promise.resolve({
-        department_id: '1',
-        name: 'ต้มไก่',
-      })
+    getDepartmentsById: jest.fn().mockImplementation((dto: DepartmentforDashboardDto) => {
+      return Promise.resolve(
+        [
+          {
+            department_id: '1',
+            name: 'ต้มไก่',
+          }
+        ]
+      )
     }),
   };
 
@@ -31,10 +35,12 @@ describe('DepartmentService', () => {
   });
 
   it('should find a department by manager\'s id', async () => {
-    const data: DepartmentforDashboardDto = {
-      department_id: '1',
-      name: 'ต้มไก่',
-    }
-    expect(await service.getDepartmentById('1')).toEqual(data);
+    const data: DepartmentforDashboardDto[] = [
+      {
+        department_id: '1',
+        name: 'ต้มไก่',
+      }
+    ]
+    expect(await service.getDepartmentsById('1')).toEqual(data);
   });
 });

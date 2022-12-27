@@ -20,4 +20,6 @@ describe('DepartmentController', () => {
   it('should be defined', () => {
     expect(controller).toBeDefined();
   });
+
+  // it should get all departments by manager id (NEED TO IMPLEMENT)
 });
