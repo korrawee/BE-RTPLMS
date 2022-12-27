@@ -11,10 +11,12 @@ describe('DashboardService', () => {
   const mockRepository = {
     getData: jest.fn().mockImplementation((mngId: string) => {
       return {
-        department: {
-          department_id: "1",
-          name: "ต้มไก่"
-        },
+        department: [
+            {
+            department_id: "1",
+            name: "ต้มไก่"
+          }
+        ],
         shifts: [
           {
             shiftCode: "1",
@@ -85,10 +87,12 @@ describe('DashboardService', () => {
 
   it('should get data collection for dashboard by manager\'s id.', () => {
     const dto: DashboardCardDto = {
-      department: {
-        department_id: "1",
-        name: "ต้มไก่"
-      },
+      department: [
+        {
+          department_id: "1",
+          name: "ต้มไก่"
+        },
+      ],
       shifts: [
         {
           shiftCode: "1",

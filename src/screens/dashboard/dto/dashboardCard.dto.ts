@@ -10,6 +10,6 @@ import { ShiftforDashboardDto } from "src/shift/dto/ShiftForDashboard.dto";
 // - URI to detail page
 
 export class DashboardCardDto {
-    department: DepartmentforDashboardDto;
+    department: Array<DepartmentforDashboardDto>;
     shifts: Array<ShiftforDashboardDto>;
 }

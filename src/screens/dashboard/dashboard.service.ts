@@ -10,11 +10,14 @@ export class DashboardService {
     constructor(private readonly shiftService: ShiftService, private readonly departmentService: DepartmentService){}
 
     public async getData(mngId: string){
-        const department: DepartmentforDashboardDto = await this.departmentService.getDepartmentById(mngId);
-        const shifts: ShiftforDashboardDto[] = await this.shiftService.getShiftsById(department.department_id);
+        const departments: DepartmentforDashboardDto[] = await this.departmentService.getDepartmentsById(mngId);
+        const departmentId: string[] = departments.map((department: DepartmentforDashboardDto)=>{
+            return department.department_id;
+        });
+        const shifts: ShiftforDashboardDto[] = await this.shiftService.getShiftsById(departmentId);
 
         const data: DashboardCardDto = {
-            department: department, 
+            department: departments, 
             shifts: shifts,
         };
         
