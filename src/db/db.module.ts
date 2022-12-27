@@ -3,10 +3,10 @@ import { PG_CONNECTION } from '../constants';
 import { Pool } from 'pg';
 
 const pool = new Pool({
-  user: 'korrawee_',
-  host: 'localhost',
+  user: 'postgres',
+  host: 'database-2.cppxynlthmto.ap-northeast-1.rds.amazonaws.com',
   database: 'test_seed',
-  password:'1234',
+  password:'12345678',
   port: 5432,
 });
 
