@@ -4,6 +4,9 @@ Repo for blog post: [https://medium.com/@calleja.justin/using-plain-pg-with-nest
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
+## Configulation
+- Creates environment variable file called ".development.env" then copy variables in ./.env.sample to it (you can change value if needed).
+
 ## Installation
 
 ```bash

@@ -18,7 +18,7 @@ import { ShiftController } from './shift/shift.controller';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: `.env`,
+      envFilePath: `.${process.env.NODE_ENV}.env`,
     }), 
     DbModule, AccountModule],
   controllers: [AppController, AccountController, DashboardController, DepartmentController, ShiftController],
