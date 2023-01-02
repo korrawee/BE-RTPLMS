@@ -3,6 +3,7 @@ import { dbResponse } from 'src/db/db.response.type';
 import { CreateAccountDto } from './dto/CreateAccount.dto';
 import { Client } from 'pg';
 import { InjectClient } from 'nest-postgres';
+import { FindAccountDto } from './dto/findAccount.dto';
 
 @Injectable()
 export class AccountService {
@@ -33,16 +34,14 @@ export class AccountService {
     }
 
     public async findAll() {
-        let data: any;
-        await this.cnn.query(`select * from ${this.entityName}`)
+        const data: FindAccountDto[] = await this.cnn.query(`select * from ${this.entityName}`)
         .then((res: dbResponse) => {
             if(res.rows.length == 0){
                 return new Error('No Content.')
             }
-            data = res.rows;
+            return res.rows;
         })
-        .catch((error) => {
-            data = {status: 200, message: error.message};
+        .catch((error: Error) => {
             console.error(error);
         });
 
@@ -72,7 +71,7 @@ export class AccountService {
             if(res.rows.length == 0){
                 return new Error(`Bad Request.`);
             }
-            data = res;
+            data = res.rows.pop();
         })
         .catch((error: any) => {
             data = { status: 400, message: error.message};

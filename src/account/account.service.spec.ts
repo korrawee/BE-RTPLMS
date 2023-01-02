@@ -1,70 +1,49 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { PG_CONNECTION } from '../constants';
+import { Client } from 'pg';
+import { getConnectionName } from 'nest-postgres';
+import { dbResponse } from 'src/db/db.response.type';
 import { AccountService } from './account.service';
+
+
+jest.mock('pg', () => {
+  const mClient = {
+    connect: jest.fn(),
+    query: jest.fn(),
+    end: jest.fn(),
+  };
+  return { Client: jest.fn(() => mClient) };
+});
+
+const mClient = {
+  connect: jest.fn(),
+  query: jest.fn(),
+  end: jest.fn(),
+};
+
+const dbRes: dbResponse = {
+  "command": '',
+  "rowCount": 1,
+  "oid": null,
+  "rows": [],
+  "_types": {},
+  "RowCtor": null,
+  "rowAsArray": true,
+}
+
 
 describe('AccountService', () => {
   let service: AccountService;
-  
-  const mockRepository = {
-    create: jest.fn().mockImplementation((dto) => {
-      return Promise.resolve(dto)
-    }),
-    findAll: jest.fn().mockImplementation(async () => {
-      return Promise.resolve([
-        {
-          account_id: '1',
-          username: 'user',
-          password: 'pwd',
-          fullname: 'name name',
-          role: 'worker',
-          telephone: "0987654321",
-          performance: 100,
-          details: { address: '1/222'},
-          mng_id: '2',
-        },
-      ]);
-    }),
-    find: jest.fn().mockImplementation(async (id: string) => {
-      return Promise.resolve(
-        {
-          account_id: '1',
-          username: 'user',
-          password: 'pwd',
-          fullname: 'name name',
-          role: 'worker',
-          telephone: "0987654321",
-          performance: 100,
-          details: { address: '1/222'},
-          mng_id: '2',
-        }
-      );
-    }),
-    updateUsername: jest.fn().mockImplementation(async (id: string, newUsername: string) => {
-      return Promise.resolve(
-        {
-          account_id: id,
-          username: newUsername,
-          password: 'pwd',
-          fullname: 'name name',
-          role: 'worker',
-          telephone: "0987654321",
-          performance: 100,
-          details: { address: '1/222'},
-          mng_id: '2',
-        }
-      );
-    })
-  };
 
   beforeEach(async () => {
+    const client: Client = new Client();
     const module: TestingModule = await Test.createTestingModule({
-      providers: [AccountService, {
-        provide: PG_CONNECTION,
-        useValue: mockRepository,
+      providers: [AccountService,{
+        provide: getConnectionName({clientOptions: client}),
+        useValue: mClient,
       }],
     }).compile();
 
-    service = module.get<AccountService>(PG_CONNECTION);
+    service = module.get<AccountService>(AccountService);
   });
 
   it('should be defined', () => {
@@ -83,6 +62,11 @@ describe('AccountService', () => {
       details: { address: '1/222'},
       mng_id: '2',
     }
+    const res = {...dbRes};
+    res['rows'] = [{...data}];
+
+    mClient.query.mockResolvedValueOnce(Promise.resolve(res));
+
     expect(await service.findAll()).toEqual([data]);
   });
 
@@ -98,6 +82,12 @@ describe('AccountService', () => {
       details: { address: '1/222'},
       mng_id: '2',
     }
+
+    const res = {...dbRes};
+    res['rows'] = [{...data}];
+
+    mClient.query.mockResolvedValueOnce(Promise.resolve(res));
+
     expect(await service.find('1')).toEqual(data);
   });
 
@@ -113,6 +103,12 @@ describe('AccountService', () => {
       details: { address: '1/222'},
       mng_id: '2',
     }
+
+    const res = {...dbRes};
+    res['rows'] = [{...data}];
+
+    mClient.query.mockResolvedValueOnce(Promise.resolve(res));
+
     expect(await service.updateUsername('1', "newName")).toEqual(data);
   });
 });

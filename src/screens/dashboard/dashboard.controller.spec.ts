@@ -1,23 +1,45 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { PG_CONNECTION } from '../../constants';
 import { DepartmentService } from '../../department/department.service';
 import { ShiftService } from '../../shift/shift.service';
 import { DashboardController } from './dashboard.controller';
 import { DashboardService } from './dashboard.service';
+import { Client } from 'pg';
 
 describe('DashboardController', () => {
   let controller: DashboardController;
   let service: DashboardService;
 
-  const mockPG = {}
+  const mockDashBoardService = {
+    getData: jest.fn((mngId: string)=>(
+      {
+        department: [
+          {
+            department_id: "1",
+            name: "ต้มไก่"
+          },
+        ],
+        shifts: [
+          {
+            shiftCode: "1",
+            successProduct: 100,
+            allMember: 20,
+            checkInMember: 10
+          },
+          {
+            shiftCode: "2",
+            successProduct: 100,
+            allMember: 20,
+            checkInMember: 10
+          }
+        ]
+      }
+    )),
+  }
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [DashboardController],
-      providers: [DashboardService, ShiftService, DepartmentService, {
-        provide: PG_CONNECTION,
-        useValue: mockPG,
-      }],
-    }).compile();
+      providers: [DashboardService],
+    }).overrideProvider(DashboardService).useValue(mockDashBoardService).compile();
 
     controller = module.get<DashboardController>(DashboardController);
     service = module.get<DashboardService>(DashboardService);

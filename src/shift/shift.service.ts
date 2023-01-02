@@ -19,8 +19,8 @@ export class ShiftService {
             const shiftInDepartment: ShiftforDashboardDto = await this.cnn.query(query)
 
             .then(async (res: dbResponse) => {
-                console.log(await this.getshifts(res.rows));
-                return await this.getshifts(res.rows);
+                console.log(await this.getshifts(res.rows).then((res)=>(res)));
+                return await this.getshifts(res.rows).then((res)=>(res));
             })
             .catch((error) => {
                 console.error(error);
@@ -28,13 +28,15 @@ export class ShiftService {
             });
             return shiftInDepartment;
         }));
-
-        return result;
+        
+        console.log(await result);
+        return await result;
     }
 
-    private async getshifts(shiftInDepartment: ShiftInDepartmentDto[]) {
+    public async getshifts(shiftInDepartment: ShiftInDepartmentDto[]) {
         
-        const data: Promise<ShiftInDepartmentDto[]> = Promise.all(shiftInDepartment.map(async (obj: ShiftInDepartmentDto) => {
+        const data: Promise<ShiftforDashboardDto[]> = Promise.all(shiftInDepartment.map(async (obj: ShiftInDepartmentDto) => {
+        // return Promise.all(shiftInDepartment.map(async (obj: ShiftInDepartmentDto) => {
             const query = `
                             select shift_code, success_product,
                             all_member, checkin_member
@@ -43,24 +45,31 @@ export class ShiftService {
                         `
             const shift =  await this.cnn.query(query)
                 .then((res: dbResponse) => {
+                    
                     return res.rows.pop();
-                    // [
-                    //     {}
-                    // ]
                 })
-                .then((shift: ShiftforDashboardAttrDto) => ({
-                    shiftCode: shift.shift_code,
-                    successProduct: shift.success_product,
-                    allMember: shift.all_member,
-                    checkInMember: shift.checkin_member,
-                }))
+                .then((shift: ShiftforDashboardAttrDto) => {
+                    const res: ShiftforDashboardDto = {
+                        shiftCode: shift.shift_code,
+                        successProduct: shift.success_product,
+                        allMember: shift.all_member,
+                        checkInMember: shift.checkin_member,
+                    }
+
+                    return res;
+                })
                 .catch((error) => {
+
                     console.error(error);
                     return {status: 200, message: error.message};
                 });
-            return shift
-        }));
 
-        return data;
+            return shift;
+        })).then(res=>{
+            
+            return res;
+        });
+
+        return data.then((res)=>(res.pop()));
     }
 }

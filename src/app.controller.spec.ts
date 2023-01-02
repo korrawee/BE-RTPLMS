@@ -1,19 +1,16 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { PG_CONNECTION } from './constants';
-
 describe('AppController', () => {
   let appController: AppController;
-
+  const mockAppService = {
+    
+  }
   beforeEach(async () => {
     const app: TestingModule = await Test.createTestingModule({
       controllers: [AppController],
-      providers: [AppService,{
-        provide: PG_CONNECTION,
-        useValue: {},
-      }],
-    }).compile();
+      providers: [AppService],
+    }).overrideProvider(AppService).useValue(mockAppService).compile();
 
     appController = app.get<AppController>(AppController);
   });
