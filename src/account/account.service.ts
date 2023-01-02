@@ -1,15 +1,13 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { throwIfEmpty } from 'rxjs';
+import { Injectable } from '@nestjs/common';
 import { dbResponse } from 'src/db/db.response.type';
-import { PG_CONNECTION } from '../constants';
 import { CreateAccountDto } from './dto/CreateAccount.dto';
-import { FindAccountDto } from './dto/findAccount.dto';
-import { UpdateAccountDto } from './dto/UpdateAccount.dto';
+import { Client } from 'pg';
+import { InjectClient } from 'nest-postgres';
 
 @Injectable()
 export class AccountService {
 
-    constructor(@Inject(PG_CONNECTION) private cnn: any) {}
+    constructor(@InjectClient() private cnn: Client) {}
     private entityName = 'accounts';
 
     public async create(createAccountDto: CreateAccountDto) {

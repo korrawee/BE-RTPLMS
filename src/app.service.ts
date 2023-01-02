@@ -1,9 +1,10 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { PG_CONNECTION } from './constants';
+import { Client } from 'pg';
+import { InjectClient } from 'nest-postgres';
 
 @Injectable()
 export class AppService {
-  constructor(@Inject(PG_CONNECTION) private conn: any) {}
+  constructor(@InjectClient() private conn: Client) {}
 
   async getUsers() {
     return "Hello world";

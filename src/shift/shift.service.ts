@@ -1,13 +1,14 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { PG_CONNECTION } from '../constants';
+import { Injectable } from '@nestjs/common';
 import { dbResponse } from 'src/db/db.response.type';
 import { ShiftforDashboardDto } from './dto/ShiftForDashboard.dto';
 import { ShiftforDashboardAttrDto } from './dto/ShiftForDashboardAttr.dto';
 import { ShiftInDepartmentDto } from './dto/ShiftInDepartment.dto';
+import { Client } from 'pg';
+import { InjectClient } from 'nest-postgres';
 
 @Injectable()
 export class ShiftService {
-    constructor(@Inject(PG_CONNECTION) private readonly cnn: any){}
+    constructor(@InjectClient() private readonly cnn: Client){}
 
     async getShiftsById(departmentsId: string[]){
 

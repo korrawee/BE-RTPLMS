@@ -1,11 +1,13 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { PG_CONNECTION } from '../constants';
+import { Injectable } from '@nestjs/common';
 import { dbResponse } from 'src/db/db.response.type';
 import { DepartmentforDashboardDto } from './dto/DepartmentforDashboard.dto';
+import { Client } from 'pg';
+import { InjectClient } from 'nest-postgres';
+
 
 @Injectable()
 export class DepartmentService {
-    constructor(@Inject(PG_CONNECTION) private readonly cnn: any){}
+    constructor(@InjectClient() private readonly cnn: Client){}
 
     async getDepartmentsById(mngId: string){
         const query = `select department_id, name from departments where mng_id='${mngId}'`;
