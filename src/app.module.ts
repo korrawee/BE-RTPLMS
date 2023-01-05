@@ -12,6 +12,8 @@ import { DepartmentService } from './department/department.service';
 import { DepartmentController } from './department/department.controller';
 import { ShiftController } from './shift/shift.controller';
 import { PostgresModule } from 'nest-postgres';
+import { DetailController } from './screens/detail/detail.controller';
+import { DetailService } from './screens/detail/detail.service';
 
 @Module({
   imports: [
@@ -30,7 +32,7 @@ import { PostgresModule } from 'nest-postgres';
       inject: [ConfigService]
     }),
     AccountModule],
-  controllers: [AppController, AccountController, DashboardController, DepartmentController, ShiftController],
-  providers: [AppService, AccountService, DashboardService, ShiftService, DepartmentService],
+  controllers: [AppController, AccountController, DashboardController, DepartmentController, ShiftController, DetailController],
+  providers: [AppService, AccountService, DashboardService, ShiftService, DepartmentService, DetailService],
 })
 export class AppModule {}
