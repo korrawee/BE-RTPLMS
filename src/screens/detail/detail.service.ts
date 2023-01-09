@@ -19,11 +19,10 @@ export class DetailService {
     public async getData(shiftCode: string){
 
         const workOnThisShift: WorkOnDto[] = await this.workOnService.findAllByShiftId(shiftCode);
-        console.log(workOnThisShift)
+
         const accountIds: Array<string> = workOnThisShift.map((obj: WorkOnDto)=>(obj.account_id));
         const accountOnThisShift: AccountDto[] = await this.accountService.findByIds(accountIds);
-        console.log('=======')
-        console.log(accountOnThisShift)
+
 
         if(workOnThisShift.length != accountOnThisShift.length){
             return new Error('account and workOn length not match.').message;
