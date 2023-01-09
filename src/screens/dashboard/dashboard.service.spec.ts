@@ -39,60 +39,6 @@ describe('DashboardService', () => {
   let dashboardService: DashboardService;
   let departmentService: DepartmentService;
   let shiftService: ShiftService;
-  const mockRepository = {
-    getData: jest.fn().mockImplementation((mngId: string) => {
-      return {
-        department: [
-            {
-            department_id: "1",
-            name: "ต้มไก่"
-          }
-        ],
-        shifts: [
-          {
-            shiftCode: "1",
-            successProduct: 100,
-            allMember: 20,
-            checkInMember: 10
-          },
-          {
-            shiftCode: "2",
-            successProduct: 100,
-            allMember: 20,
-            checkInMember: 10
-          }
-        ]
-      }
-    }),
-  };
-
-  const mockShiftService = {
-    getShiftsById: jest.fn((departmentId: string)=>{
-      return [
-        {
-          shiftCode: "1",
-          successProduct: 100,
-          allMember: 20,
-          checkInMember: 10
-        },
-        {
-          shiftCode: "2",
-          successProduct: 100,
-          allMember: 20,
-          checkInMember: 10
-        }
-      ]
-    })
-  }
-
-  const mockDepartmentService = {
-    getDepartmentsById: jest.fn((mngId: string)=>{
-      return {
-        department_id: "1",
-        name: "ต้มไก่"
-      }
-    }),
-  }
 
   beforeEach(async () => {
     const client: Client = new Client();
