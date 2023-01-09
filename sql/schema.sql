@@ -58,21 +58,20 @@ CREATE TABLE _controls(
 );
 
 CREATE TABLE work_on(
-        task_id serial primary key,
         account_id text references accounts(account_id),
         shift_code text references shifts(shift_code),
-        checkin_time time,
-        checkout_time time,
+        checkin_time time DEFAULT NULL,
+        checkout_time time DEFAULT NULL,
         ot numeric,
         date date
 );
 
 CREATE TABLE requests(
-        task_id integer references work_on(task_id),
+        shift_code text references shifts(shift_code),
         account_id text references accounts(account_id),
         date date,
         number_of_hour numeric,
-        req_status text,
+        req_status text default 'รอดำเนินการ',
         mng_id text references accounts(account_id),
         create_at timestamp default now()
 );
