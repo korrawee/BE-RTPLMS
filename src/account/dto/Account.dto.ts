@@ -1,4 +1,4 @@
-export class FindAccountDto {
+export class AccountDto {
     account_id: string;
     username: string;
     password: string;
