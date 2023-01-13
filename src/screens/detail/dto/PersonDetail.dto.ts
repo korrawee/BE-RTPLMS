@@ -3,6 +3,6 @@ export class PersonDetailDto{
     checkInTime: string;
     checkOutTime: string;
     checkInStatus: string;
-    otStatus: string;
-    otDuration: number;
+    otStatus?: string;
+    otDuration?: number;
 }

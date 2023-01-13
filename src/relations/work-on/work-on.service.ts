@@ -22,7 +22,26 @@ export class WorkOnService {
             .then((res: dbResponse) => {
 
                 return res.rows;
-            });
+            }); 
         return allWorkOnThisShift;
+    }
+
+    public getFreeWorker(mng_id: string, date: string) {
+        const query = `
+            WITH
+            worker_of_mng1 as (
+                SELECT * FROM accounts WHERE mng_id='${mng_id}'
+            )
+            ,worker_in_shift as (
+                SELECT account_id FROM work_on WHERE date='${date}'
+            )
+            SELECT worker_of_mng1.account_id, worker_of_mng1.fullname 
+            FROM worker_of_mng1 
+            WHERE worker_of_mng1.account_id NOT IN (SELECT * from worker_in_shift);
+        `
+        return this.cnn.query(query)
+        .then((res: dbResponse) => {
+            return res.rows;
+        })
     }
 }
