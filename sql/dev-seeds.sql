@@ -1,6 +1,17 @@
+    INSERT INTO accounts VALUES (
+        '0',
+        concat('user', cast(0 AS text)),
+        '1234',
+        concat('full-name', cast(0 AS text)),
+        'worker',
+        '0981',
+        12.0,
+        '{"data": "eiei"}', 
+        NULL
+    );
 do $$
     declare
-    index integer := 0;
+    index integer := 1;
 
     begin
     while index <10 loop
@@ -13,7 +24,7 @@ do $$
             '0981',
             12.0,
             '{"data": "eiei"}', 
-            NULL
+            '1'
         );
         INSERT INTO shifts VALUES (
             index, 
