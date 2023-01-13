@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectClient } from 'nest-postgres';
 import { Client } from 'pg';
 import { dbResponse } from 'src/db/db.response.type';
+import { CreateWorkOnBodyDto } from './dto/CreateWorkOnBody.dto';
 import { WorkOnDto } from './dto/WorkOn.dto';
 @Injectable()
 export class WorkOnService {
@@ -26,7 +27,7 @@ export class WorkOnService {
         return allWorkOnThisShift;
     }
 
-    public getFreeWorker(mng_id: string, date: string) {
+    public async getFreeWorker(mng_id: string, date: string) {
         const query = `
             WITH
             worker_of_mng1 as (
@@ -39,9 +40,30 @@ export class WorkOnService {
             FROM worker_of_mng1 
             WHERE worker_of_mng1.account_id NOT IN (SELECT * from worker_in_shift);
         `
-        return this.cnn.query(query)
+        const freeWorkers = this.cnn.query(query)
         .then((res: dbResponse) => {
             return res.rows;
         })
+        return freeWorkers;
+    }
+    public async createWorkOn(body: CreateWorkOnBodyDto){
+        const values = body.accountIds.reduce((str: string, accId:string, currentIndex: number)=>{
+            return str + (currentIndex == body.accountIds.length-1 ? `('${accId}', '${body.shiftCode}', '${body.date}');` : `('${accId}', '${body.shiftCode}', '${body.date}'),`)    
+        },'');
+
+        const query = `INSERT INTO work_on(
+            account_id, shift_code, date
+            )
+            VALUES${values}; 
+        `;
+
+        try{
+            const res = await this.cnn.query(query);
+            return {status: 200, message: "Insert Successful..."};
+
+        }catch(e){
+            console.log(e);
+            return new Error('Server Error.');
+        }
     }
 }
