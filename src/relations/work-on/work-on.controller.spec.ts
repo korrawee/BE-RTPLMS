@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { WorkOnPostDeleteDto } from './dto/WorkOnPostDeleteDto';
 import { WorkOnController } from './work-on.controller';
 import { WorkOnService } from './work-on.service';
 
@@ -18,7 +19,24 @@ describe('WorkOnController', () => {
       ]
     }),
     getFreeWorker: jest.fn((mngId:string, date:string)=>{
-      return ''
+      return [
+        {
+          "account_id": "1",
+          "fullname": "full-name1"
+        }
+      ];
+    }),
+    createWorkOn: jest.fn((mngId:string, date:string)=>{
+      return {
+        "status": 200,
+        "message": "Insert Successful..."
+      };
+    }),
+    deleteWorkOn: jest.fn((mngId:string, date:string)=>{
+      return {
+        "status": 200,
+        "message": "Delete Successful..."
+      };
     })
   }
   beforeEach(async () => {
@@ -63,5 +81,47 @@ describe('WorkOnController', () => {
     const result = await controller.getFreeWorker('1','2023-01-09');
     expect(result).toEqual(expectResult);
     expect(service.getFreeWorker).toHaveBeenCalledWith('1','2023-01-09');
+  })
+
+  it('should be add worker into shift', async ()=>{
+    const body: WorkOnPostDeleteDto = {
+      "shiftCode": "1",
+      "date": "2023-01-09",
+      "accountIds": [
+        "1",
+        "4",
+        "5",
+        "8",
+        "9"
+      ]
+    }
+    const expectResult = {
+      "status": 200,
+      "message": "Insert Successful..."
+    }
+    const result = await controller.createWorkOn(body);
+    expect(result).toEqual(expectResult);
+    expect(service.createWorkOn).toHaveBeenCalledWith(body);
+  })
+
+  it('should be delete worker from shift', async ()=>{
+    const body: WorkOnPostDeleteDto = {
+      "shiftCode": "1",
+      "date": "2023-01-09",
+      "accountIds": [
+        "1",
+        "4",
+        "5",
+        "8",
+        "9"
+      ]
+    }
+    const expectResult = {
+      "status": 200,
+      "message": "Delete Successful..."
+    }
+    const result = await controller.deleteWorkOn(body);
+    expect(result).toEqual(expectResult);
+    expect(service.deleteWorkOn).toHaveBeenCalledWith(body);
   })
 });
