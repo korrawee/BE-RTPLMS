@@ -13,14 +13,20 @@ export class AccountService {
 
     public async create(createAccountDto: CreateAccountDto) {
         let data: any;
-        const columns: string = Object.getOwnPropertyNames(createAccountDto).toString();
-        const values: Array<any> = Object.values(createAccountDto);
-        
+        const columns: string = Object.keys(createAccountDto).toString();
+        const values: Array<string> = Object.values(createAccountDto);
+        const strValues: string = values.reduce((str, value, currentIndex)=>{
+            if(typeof(value) == "object") {
+                value = JSON.stringify(values);
+            }
+            return str + (currentIndex === values.length-1 ? `\'${value}\'`:`\'${value}\',`);
+        }, '');
+        console.log(`${columns}\n${values}\n${strValues}`);
         const query: string = `INSERT INTO accounts(${columns}) 
-        VALUES ('${values[0]}', '${values[1]}', '${values[2]}', '${values[3]}',
-                '${values[4]}', '${values[5]}', '${JSON.stringify(values[6])}', '${values[7]}') 
+        VALUES (${strValues}) 
         RETURNING *
         `;
+
         data = await this.cnn.query(query)
         .then((res: dbResponse) => {
             return res.rows;
