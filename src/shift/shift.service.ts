@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { dbResponse } from 'src/db/db.response.type';
 import { ShiftforDashboardDto } from './dto/ShiftForDashboard.dto';
 import { ShiftforDashboardAttrDto } from './dto/ShiftForDashboardAttr.dto';
@@ -24,7 +24,7 @@ export class ShiftService {
             })
             .catch((error) => {
                 console.error(error);
-                return {status: 200, message: error.message};
+                throw new BadRequestException('Invalid input data');
             });
             return shiftInDepartment;
         }));
@@ -61,7 +61,7 @@ export class ShiftService {
                 .catch((error) => {
 
                     console.error(error);
-                    return {status: 200, message: error.message};
+                    throw new BadRequestException('Invalid input data');
                 });
 
             return shift;

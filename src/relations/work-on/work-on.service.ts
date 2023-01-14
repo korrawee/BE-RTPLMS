@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectClient } from 'nest-postgres';
 import { Client } from 'pg';
 import { dbResponse } from 'src/db/db.response.type';
-import { CreateWorkOnBodyDto } from './dto/CreateWorkOnBody.dto';
+import { WorkOnPostDeleteDto } from './dto/WorkOnPostDeleteDto';
 import { WorkOnDto } from './dto/WorkOn.dto';
 @Injectable()
 export class WorkOnService {
@@ -30,15 +30,15 @@ export class WorkOnService {
     public async getFreeWorker(mng_id: string, date: string) {
         const query = `
             WITH
-            worker_of_mng1 as (
+            worker_of_mng as (
                 SELECT * FROM accounts WHERE mng_id='${mng_id}'
             )
             ,worker_in_shift as (
                 SELECT account_id FROM work_on WHERE date='${date}'
             )
-            SELECT worker_of_mng1.account_id, worker_of_mng1.fullname 
-            FROM worker_of_mng1 
-            WHERE worker_of_mng1.account_id NOT IN (SELECT * from worker_in_shift);
+            SELECT worker_of_mng.account_id, worker_of_mng.fullname, worker_of_mng.performance 
+            FROM worker_of_mng 
+            WHERE worker_of_mng.account_id NOT IN (SELECT * from worker_in_shift);
         `
         const freeWorkers = this.cnn.query(query)
         .then((res: dbResponse) => {
@@ -46,7 +46,25 @@ export class WorkOnService {
         })
         return freeWorkers;
     }
-    public async createWorkOn(body: CreateWorkOnBodyDto){
+
+    public async getWorkOnOfShift(shiftCode: string, date: string) {
+        const query = `SELECT * from work_on
+            WHERE shift_code='${shiftCode}' AND date='${date}';
+        `;
+
+        const data = this.cnn.query(query)
+        .then((res: dbResponse)=>{
+            return res.rows;
+        })
+        .catch((e)=>{
+            console.log(e);
+            throw new BadRequestException('Invalid input data');
+        });
+
+        return data;
+    }
+
+    public async createWorkOn(body: WorkOnPostDeleteDto){
         const values = body.accountIds.reduce((str: string, accId:string, currentIndex: number)=>{
             return str + (currentIndex == body.accountIds.length-1 ? `('${accId}', '${body.shiftCode}', '${body.date}');` : `('${accId}', '${body.shiftCode}', '${body.date}'),`)    
         },'');
@@ -63,7 +81,26 @@ export class WorkOnService {
 
         }catch(e){
             console.log(e);
-            return new Error('Server Error.');
+            throw new BadRequestException('Invalid input data');
+        }
+    }
+
+    public async deleteWorkOn(body: WorkOnPostDeleteDto){
+        const values = body.accountIds.reduce((str, accId, currentIndex)=>{
+            return str + (currentIndex == body.accountIds.length-1 ?  `'${accId}'`:`'${accId}',`);
+        },'');
+    
+        const query = `DELETE FROM work_on 
+            WHERE account_id IN (${values}) AND shift_code='${body.shiftCode}';
+        ;`;
+
+        try{
+            const res = await this.cnn.query(query);
+            return {status: 200, message: "Delete Successful..."};
+
+        }catch(e){
+            console.log(e);
+            throw new BadRequestException('Invalid input data');
         }
     }
 }
