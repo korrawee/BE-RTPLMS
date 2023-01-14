@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectClient } from 'nest-postgres';
 import { Client } from 'pg';
 import { dbResponse } from 'src/db/db.response.type';
@@ -63,7 +63,7 @@ export class WorkOnService {
 
         }catch(e){
             console.log(e);
-            return new Error('Server Error.');
+            throw new BadRequestException('Invalid input data');
         }
     }
 
@@ -82,7 +82,7 @@ export class WorkOnService {
 
         }catch(e){
             console.log(e);
-            return new Error('Server Error.');
+            throw new BadRequestException('Invalid input data');
         }
     }
 }
