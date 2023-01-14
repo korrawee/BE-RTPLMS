@@ -25,7 +25,7 @@ export class DetailService {
 
 
         if(workOnThisShift.length != accountOnThisShift.length){
-            return new Error('account and workOn length not match.').message;
+            throw new Error('account and workOn length not match.');
         }
 
         const response: PersonDetailDto[] = [];
