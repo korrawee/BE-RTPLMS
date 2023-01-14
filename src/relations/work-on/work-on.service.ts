@@ -30,15 +30,15 @@ export class WorkOnService {
     public async getFreeWorker(mng_id: string, date: string) {
         const query = `
             WITH
-            worker_of_mng1 as (
+            worker_of_mng as (
                 SELECT * FROM accounts WHERE mng_id='${mng_id}'
             )
             ,worker_in_shift as (
                 SELECT account_id FROM work_on WHERE date='${date}'
             )
-            SELECT worker_of_mng1.account_id, worker_of_mng1.fullname 
-            FROM worker_of_mng1 
-            WHERE worker_of_mng1.account_id NOT IN (SELECT * from worker_in_shift);
+            SELECT worker_of_mng.account_id, worker_of_mng.fullname, worker_of_mng.performance 
+            FROM worker_of_mng 
+            WHERE worker_of_mng.account_id NOT IN (SELECT * from worker_in_shift);
         `
         const freeWorkers = this.cnn.query(query)
         .then((res: dbResponse) => {

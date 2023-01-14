@@ -89,23 +89,8 @@ describe('WorkOnService', () => {
     const queryData = [
       {
         "account_id": "1",
-        "fullname": "full-name1"
-      },
-      {
-        "account_id": "4",
-        "fullname": "full-name4"
-      },
-      {
-        "account_id": "5",
-        "fullname": "full-name5"
-      },
-      {
-        "account_id": "8",
-        "fullname": "full-name8"
-      },
-      {
-        "account_id": "9",
-        "fullname": "full-name9"
+        "fullname": "full-name1",
+        "perfermance": 50
       }
     ];
     
