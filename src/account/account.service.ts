@@ -56,7 +56,7 @@ export class AccountService {
     }
     public async find(id: string) {
         let data: any;
-        await this.cnn.query(`SELECT * FROM account WHERE account_id='${id}'`)
+        await this.cnn.query(`SELECT * FROM accounts WHERE account_id='${id}'`)
         .then((res: dbResponse) => {
             if(res.rows.length == 0){
                 return new Error(`No account_id = ${id}`);
@@ -110,9 +110,5 @@ export class AccountService {
         });
 
         return data;
-    }
-
-    public getCheckInStatus(accountId: string){
-        return 'ปกติ';
     }
 }
