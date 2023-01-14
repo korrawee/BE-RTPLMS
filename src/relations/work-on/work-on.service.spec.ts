@@ -120,5 +120,43 @@ describe('WorkOnService', () => {
     expect(await service.createWorkOn(body)).toEqual(res);
   
   })
+  
+  it('should delete work_on', async () => {
+    const res = {
+      "status": 200,
+      "message": "Delete Successful..."
+    }
+    const body: WorkOnPostDeleteDto = {
+      "shiftCode": "1",
+      "date": "2023-01-09",
+      "accountIds": [
+        "1",
+        "4",
+        "5",
+        "8",
+        "9"
+      ]
+    }
+    mClient.query.mockResolvedValueOnce(res);
+    expect(await service.deleteWorkOn(body)).toEqual(res);
+  
+  })
+
+  it('should get work on of given shift', async () => {
+    const res = [{
+      "account_id": "1",
+      "shift_code": "2",
+      "checkin_time": null,
+      "checkout_time": null,
+      "ot": null,
+      "date": "2023-01-08T17:00:00.000Z"
+    },];
+    const shiftCode = '2';
+    const date = '2023-01-09';
+    
+    mClient.query.mockResolvedValueOnce(res);
+    expect(await service.getWorkOnOfShift(shiftCode, date)).toEqual(res);
+  
+  })
  
 });

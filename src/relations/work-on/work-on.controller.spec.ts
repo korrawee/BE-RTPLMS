@@ -37,6 +37,16 @@ describe('WorkOnController', () => {
         "status": 200,
         "message": "Delete Successful..."
       };
+    }),
+    getWorkOnOfShift: jest.fn((shiftId: string, date: string)=>{
+      return [{
+        "account_id": "1",
+        "shift_code": "2",
+        "checkin_time": null,
+        "checkout_time": null,
+        "ot": null,
+        "date": "2023-01-08T17:00:00.000Z"
+      },];
     })
   }
   beforeEach(async () => {
@@ -124,4 +134,22 @@ describe('WorkOnController', () => {
     expect(result).toEqual(expectResult);
     expect(service.deleteWorkOn).toHaveBeenCalledWith(body);
   })
+
+  it('should get all work on of given shift',async ()=>{
+    const expectResult = [{
+      "account_id": "1",
+      "shift_code": "2",
+      "checkin_time": null,
+      "checkout_time": null,
+      "ot": null,
+      "date": "2023-01-08T17:00:00.000Z"
+    },];
+    const shiftCode = '2';
+    const date = '2023-01-09';
+
+    const result = await controller.getWorkOnOfShift(shiftCode, date);
+
+    expect(result).toEqual(expectResult);
+    expect(service.getWorkOnOfShift).toHaveBeenCalledWith(shiftCode, date);
+  });
 });

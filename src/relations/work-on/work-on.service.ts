@@ -46,6 +46,24 @@ export class WorkOnService {
         })
         return freeWorkers;
     }
+
+    public async getWorkOnOfShift(shiftCode: string, date: string) {
+        const query = `SELECT * from work_on
+            WHERE shift_code='${shiftCode}' AND date='${date}';
+        `;
+
+        const data = this.cnn.query(query)
+        .then((res: dbResponse)=>{
+            return res.rows;
+        })
+        .catch((e)=>{
+            console.log(e);
+            throw new BadRequestException('Invalid input data');
+        });
+
+        return data;
+    }
+
     public async createWorkOn(body: WorkOnPostDeleteDto){
         const values = body.accountIds.reduce((str: string, accId:string, currentIndex: number)=>{
             return str + (currentIndex == body.accountIds.length-1 ? `('${accId}', '${body.shiftCode}', '${body.date}');` : `('${accId}', '${body.shiftCode}', '${body.date}'),`)    
