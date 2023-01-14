@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectClient } from 'nest-postgres';
 import { Client } from 'pg';
 import { dbResponse } from 'src/db/db.response.type';
-import { CreateWorkOnBodyDto } from './dto/CreateWorkOnBody.dto';
+import { WorkOnPostDeleteDto } from './dto/WorkOnPostDeleteDto';
 import { WorkOnDto } from './dto/WorkOn.dto';
 @Injectable()
 export class WorkOnService {
@@ -46,7 +46,7 @@ export class WorkOnService {
         })
         return freeWorkers;
     }
-    public async createWorkOn(body: CreateWorkOnBodyDto){
+    public async createWorkOn(body: WorkOnPostDeleteDto){
         const values = body.accountIds.reduce((str: string, accId:string, currentIndex: number)=>{
             return str + (currentIndex == body.accountIds.length-1 ? `('${accId}', '${body.shiftCode}', '${body.date}');` : `('${accId}', '${body.shiftCode}', '${body.date}'),`)    
         },'');
@@ -60,6 +60,25 @@ export class WorkOnService {
         try{
             const res = await this.cnn.query(query);
             return {status: 200, message: "Insert Successful..."};
+
+        }catch(e){
+            console.log(e);
+            return new Error('Server Error.');
+        }
+    }
+
+    public async deleteWorkOn(body: WorkOnPostDeleteDto){
+        const values = body.accountIds.reduce((str, accId, currentIndex)=>{
+            return str + (currentIndex == body.accountIds.length-1 ?  `'${accId}'`:`'${accId}',`);
+        },'');
+    
+        const query = `DELETE FROM work_on 
+            WHERE account_id IN (${values}) AND shift_code='${body.shiftCode}';
+        ;`;
+
+        try{
+            const res = await this.cnn.query(query);
+            return {status: 200, message: "Delete Successful..."};
 
         }catch(e){
             console.log(e);
