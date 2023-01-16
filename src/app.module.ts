@@ -17,6 +17,8 @@ import { DetailService } from './screens/detail/detail.service';
 import { WorkOnService } from './relations/work-on/work-on.service';
 import { RequestService } from './relations/request/request.service';
 import { WorkOnController } from './relations/work-on/work-on.controller';
+import { RequestController } from './relations/request/request.controller';
+import { RequestModule } from './relations/request/request.module';
 
 @Module({
   imports: [
@@ -34,8 +36,9 @@ import { WorkOnController } from './relations/work-on/work-on.controller';
       }},
       inject: [ConfigService]
     }),
-    AccountModule],
-  controllers: [AppController, AccountController, DashboardController, DepartmentController, ShiftController, DetailController, WorkOnController],
+    AccountModule,
+    RequestModule],
+  controllers: [AppController, AccountController, DashboardController, DepartmentController, ShiftController, DetailController, WorkOnController, RequestController],
   providers: [AppService, AccountService, DashboardService, ShiftService, DepartmentService, DetailService, WorkOnService, RequestService],
 })
 export class AppModule {}

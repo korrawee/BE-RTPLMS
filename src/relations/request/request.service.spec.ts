@@ -3,6 +3,7 @@ import { Client } from 'pg';
 import { getConnectionName } from 'nest-postgres';
 import { dbResponse } from 'src/db/db.response.type';
 import { RequestService } from './request.service';
+import { RequestForOtDetailDto } from './dto/RequestForOtDetail.dto';
 
 jest.mock('pg', () => {
   const mClient = {
@@ -60,4 +61,24 @@ describe('RequestService', () => {
 
     expect(await service.getRequest('1','2', '2023-01-06')).toEqual(queryData);
   })
+
+  it('should get all shifts by given shiftCode and date', async ()=>{
+    const shiftCode = '1';
+    const date = '2023-09-01';
+    
+    const expectResult: RequestForOtDetailDto[] = [
+      {
+        shiftCode: '1',
+        accountId: '1',
+        accountName: 'full-name',
+        numberOfHour: 4,
+        reqStatus: 'รอดำเนินการ'
+      },
+    ]
+    const res = {...dbRes};
+    res['rows'] = expectResult;
+
+    mClient.query.mockResolvedValueOnce(res);
+    expect(await service.getAllRequestByShiftAndDate(shiftCode, date)).toEqual(expectResult);
+  });
 });

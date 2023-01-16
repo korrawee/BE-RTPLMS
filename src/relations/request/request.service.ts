@@ -1,13 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectClient } from 'nest-postgres';
 import { dbResponse } from 'src/db/db.response.type';
 import { Client } from 'pg';
+import { RequestForOtDetailDto } from './dto/RequestForOtDetail.dto';
 
 @Injectable()
 export class RequestService {
     constructor(@InjectClient() private readonly cnn: Client){}
 
-    public async getRequest(shiftCode: string, accountId: string, date: string){
+    public getRequest(shiftCode: string, accountId: string, date: string){
         const query = `SELECT number_of_hour, req_status 
         FROM requests 
         WHERE shift_code='${shiftCode}' AND 
@@ -15,10 +16,30 @@ export class RequestService {
         date='${date}';
         `;
 
-        return await this.cnn.query(query)
+        return this.cnn.query(query)
             .then((res: dbResponse) => {
 
                 return res.rows[0];
+            }).catch((e)=>{
+                console.log(e);
+                return new BadRequestException('Invalid data input');
             });
+    }
+
+    public async getAllRequestByShiftAndDate(shiftCode: string, date: string): Promise<RequestForOtDetailDto[]>{
+
+        const query = `SELECT * FROM requests WHERE shift_code='${shiftCode}' AND date='${date}';`;
+
+        const data: RequestForOtDetailDto[] = await this.cnn.query(query)
+            .then((res: dbResponse)=>{
+                const resData: RequestForOtDetailDto[] = res.rows;
+                return resData;
+            })
+            .catch((e)=>{
+                console.log(e);
+                return new BadRequestException('Invalid Data Input');
+            });
+
+        return data;
     }
 }
