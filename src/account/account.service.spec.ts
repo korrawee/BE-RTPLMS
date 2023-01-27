@@ -3,7 +3,7 @@ import { Client } from 'pg';
 import { getConnectionName } from 'nest-postgres';
 import { dbResponse } from 'src/db/db.response.type';
 import { AccountService } from './account.service';
-
+import { FilteredAccountDto } from '../relations/work-on/dto/FilteredAccount.dto';
 
 jest.mock('pg', () => {
   const mClient = {
