@@ -3,8 +3,7 @@ import { dbResponse } from 'src/db/db.response.type';
 import { CreateAccountDto } from './dto/CreateAccount.dto';
 import { Client } from 'pg';
 import { InjectClient } from 'nest-postgres';
-import { AccountDto } from './dto/Account.dto';
-import { throwError } from 'rxjs';
+import { AccountDto } from "./dto/AccountDto";
 
 @Injectable()
 export class AccountService {
@@ -78,7 +77,7 @@ export class AccountService {
                 return str + ` '${id}'${((index != accountIds.length - 1) ? ',':'')}`;
             },"")
         
-        const query = `SELECT * FROM accounts WHERE account_id IN (${newAccountIds})`;
+        const query = `SELECT * FROM accounts WHERE account_id IN (${newAccountIds}) ORDER BY cast(account_id AS int)`;
 
         return await this.cnn.query(query)
             .then((res: dbResponse) => {
