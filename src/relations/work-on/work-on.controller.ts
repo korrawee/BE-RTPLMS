@@ -6,9 +6,9 @@ import { WorkOnService } from './work-on.service';
 export class WorkOnController {
     constructor(private readonly workOnService: WorkOnService){}
 
-    @Get('/manager/:mngId/:date')
-    async getFreeWorker(@Param('mngId') mngId: string, @Param('date') date: string){
-        return this.workOnService.getFreeWorker(mngId, date);
+    @Get('/managers/:mngId/shifts/:shiftCode/:date')
+    async getFreeWorker(@Param('mngId') mngId: string, @Param('shiftCode') shiftCode: string, @Param('date') date: string){
+        return this.workOnService.getFreeWorker(mngId, shiftCode, date);
     }
 
     @Get('/shift/:shiftId/:date')
@@ -17,7 +17,7 @@ export class WorkOnController {
     }
 
     @Post('')
-    async createWorkOn(@Body()  body: WorkOnPostDeleteDto){
+    async createWorkOn(@Body() body: WorkOnPostDeleteDto){
         return await this.workOnService.createWorkOn(body);
     }
 
