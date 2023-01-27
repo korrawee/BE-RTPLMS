@@ -7,7 +7,7 @@ import { WorkOnService } from '../../relations/work-on/work-on.service';
 import { RequestService } from '../../relations/request/request.service';
 import { AccountService } from '../../account/account.service';
 import { WorkOnDto } from 'src/relations/work-on/dto/WorkOn.dto';
-import { AccountDto } from 'src/account/dto/Account.dto';
+import { AccountDto } from 'src/account/dto/AccountDto';
 
 jest.mock('pg', () => {
   const mClient = {
