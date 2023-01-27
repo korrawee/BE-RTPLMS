@@ -4,6 +4,7 @@ import { Client } from 'pg';
 import { dbResponse } from 'src/db/db.response.type';
 import { WorkOnPostDeleteDto } from './dto/WorkOnPostDeleteDto';
 import { WorkOnDto } from './dto/WorkOn.dto';
+import { FilteredAccountDto } from 'src/relations/work-on/dto/FilteredAccount.dto';
 @Injectable()
 export class WorkOnService {
     constructor(@InjectClient() private readonly cnn: Client){}
@@ -17,7 +18,8 @@ export class WorkOnService {
                 WHEN checkin_time IS NULL THEN 'ยังไม่เข้างาน'
                 ELSE 'ยังไม่เข้างาน'
             END AS checkin_status
-            FROM work_on WHERE shift_code='${shiftCode}';
+            FROM work_on WHERE shift_code='${shiftCode}'
+            ORDER BY cast(account_id AS int);
         `;
         const allWorkOnThisShift: WorkOnDto[] = await this.cnn.query(query)
             .then((res: dbResponse) => {
@@ -27,18 +29,19 @@ export class WorkOnService {
         return allWorkOnThisShift;
     }
 
-    public async getFreeWorker(mng_id: string, date: string) {
+    public async getFreeWorker(mng_id: string, shiftCode: string, date: string) {
+        // Only return worker on given shift
         const query = `
             WITH
             worker_of_mng as (
                 SELECT * FROM accounts WHERE mng_id='${mng_id}'
             )
             ,worker_in_shift as (
-                SELECT account_id FROM work_on WHERE date='${date}'
+                SELECT account_id FROM work_on WHERE shift_code='${shiftCode}' AND date='${date}'
             )
             SELECT worker_of_mng.account_id, worker_of_mng.fullname, worker_of_mng.performance 
             FROM worker_of_mng 
-            WHERE worker_of_mng.account_id NOT IN (SELECT * from worker_in_shift);
+            WHERE worker_of_mng.account_id IN (SELECT account_id from worker_in_shift);
         `
         const freeWorkers = this.cnn.query(query)
         .then((res: dbResponse) => {
@@ -102,5 +105,26 @@ export class WorkOnService {
             console.log(e);
             throw new BadRequestException('Invalid input data');
         }
+    }
+
+    public async getAccountIdSortByCheckIn(shiftId: string, quantity: number): Promise<FilteredAccountDto[]> {
+
+        const query = `SELECT account_id from work_on 
+            WHERE shift_code='${shiftId}' 
+            ORDER BY checkin_time
+            LIMIT ${quantity};`;
+        
+        
+        const queryData: Promise<FilteredAccountDto[]> = await this.cnn.query(query)
+            .then((res: dbResponse)=>{
+                const data: FilteredAccountDto[] = res.rows;
+                return data;
+            })
+            .catch((e)=>{
+                console.log(e);
+                return new BadRequestException('Invalid data input');
+            });
+            
+        return queryData;
     }
 }

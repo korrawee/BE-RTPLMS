@@ -2,8 +2,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { AccountController } from './account/account.controller';
-import { AccountService } from './account/account.service';
 import { AccountModule } from './account/account.module';
 import { DashboardController } from './screens/dashboard/dashboard.controller';
 import { DashboardService } from './screens/dashboard/dashboard.service';
@@ -14,9 +12,9 @@ import { ShiftController } from './shift/shift.controller';
 import { PostgresModule } from 'nest-postgres';
 import { DetailController } from './screens/detail/detail.controller';
 import { DetailService } from './screens/detail/detail.service';
-import { WorkOnService } from './relations/work-on/work-on.service';
-import { RequestService } from './relations/request/request.service';
-import { WorkOnController } from './relations/work-on/work-on.controller';
+import { RequestModule } from './relations/request/request.module';
+import { WorkOnModule } from './relations/work-on/work-on.module';
+import { DetailModule } from './screens/detail/detail.module';
 
 @Module({
   imports: [
@@ -34,8 +32,11 @@ import { WorkOnController } from './relations/work-on/work-on.controller';
       }},
       inject: [ConfigService]
     }),
-    AccountModule],
-  controllers: [AppController, AccountController, DashboardController, DepartmentController, ShiftController, DetailController, WorkOnController],
-  providers: [AppService, AccountService, DashboardService, ShiftService, DepartmentService, DetailService, WorkOnService, RequestService],
+    AccountModule,
+    WorkOnModule,  
+    RequestModule, DetailModule,
+  ],
+  controllers: [AppController, DashboardController, DepartmentController, ShiftController, DetailController],
+  providers: [AppService, DashboardService, ShiftService, DepartmentService, DetailService],
 })
 export class AppModule {}

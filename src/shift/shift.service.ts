@@ -38,10 +38,14 @@ export class ShiftService {
         const data: Promise<ShiftforDashboardDto[]> = Promise.all(shiftInDepartment.map(async (obj: ShiftInDepartmentDto) => {
         // return Promise.all(shiftInDepartment.map(async (obj: ShiftInDepartmentDto) => {
             const query = `
-                            select shift_code, success_product,
-                            all_member, checkin_member
-                            from shifts 
-                            where shift_code='${+obj.shift_code}'
+                            SELECT shift_code,
+                                success_product,
+                                all_member,
+                                checkin_member,
+                                shift_time,
+                                date
+                            FROM shifts 
+                            WHERE shift_code='${+obj.shift_code}'
                         `
             const shift =  await this.cnn.query(query)
                 .then((res: dbResponse) => {
@@ -51,6 +55,8 @@ export class ShiftService {
                 .then((shift: ShiftforDashboardAttrDto) => {
                     const res: ShiftforDashboardDto = {
                         shiftCode: shift.shift_code,
+                        shiftDate: shift.date,
+                        shiftTime: shift.shift_time,
                         successProduct: shift.success_product,
                         allMember: shift.all_member,
                         checkInMember: shift.checkin_member,

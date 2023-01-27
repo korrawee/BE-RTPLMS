@@ -6,7 +6,8 @@ export class DetailController {
     constructor(private readonly detailService: DetailService){}
 
     @Get('/shift/:shift_code')
-    getData(@Param('shift_code') shiftCode: string){
-        return this.detailService.getData(shiftCode);
+    public async getData(@Param('shift_code') shiftCode: string){
+        const res = await this.detailService.getData(shiftCode);
+        return res;
     }
 }
