@@ -10,6 +10,7 @@ import { DeleteOtRequest } from './dto/DeleteOtRequest.dto';
 import { AccountService } from 'src/account/account.service';
 import { AccountDto } from 'src/account/dto/AccountDto';
 import { WorkOnDto } from '../work-on/dto/WorkOn.dto';
+import { isNumber } from 'class-validator';
 
 @Injectable()
 export class RequestService {
@@ -209,4 +210,25 @@ export class RequestService {
             });
     }
 
+    public async getRequestByAccountId(accId: string){
+        if(!isNumber(parseInt(accId))) throw new BadRequestException('Invalid account id');
+
+        const query = `
+            SELECT shift_code, date, number_of_hour, req_status, create_at 
+            FROM requests
+            WHERE account_id='${accId}'
+            ORDER BY create_at DESC;
+        `;
+
+        const requests: RequestDto[] = await this.cnn.query(query)
+            .then((res: dbResponse)=>{
+                return res.rows
+            })
+            .catch((e)=>{
+                console.log(e);
+                throw new BadRequestException('Invalid account id');
+            });
+
+        return requests;
+    }
 }

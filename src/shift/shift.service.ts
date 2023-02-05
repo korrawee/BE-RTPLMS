@@ -5,6 +5,7 @@ import { ShiftforDashboardAttrDto } from './dto/ShiftForDashboardAttr.dto';
 import { ShiftInDepartmentDto } from './dto/ShiftInDepartment.dto';
 import { Client } from 'pg';
 import { InjectClient } from 'nest-postgres';
+import { RequestDto } from 'src/relations/request/dto/Request.dto';
 
 @Injectable()
 export class ShiftService {
@@ -77,5 +78,25 @@ export class ShiftService {
         });
 
         return data.then((res)=>(res.pop()));
+    }
+
+    public async getShiftTimeById(shiftCode: string){
+        const query = `
+            SELECT shift_time
+            FROM shifts 
+            WHERE shift_code='${shiftCode}';
+        `;
+        // console.log('shift_code: ', shiftCode)
+        const requestWithWorkTime: {shift_time: string} = await this.cnn.query(query)
+            .then((res: dbResponse)=>{
+                // console.log('shift',res.rows)
+                return res.rows.pop();
+            })
+            .catch(e=>{
+                console.log(e);
+                throw new BadRequestException('Invalid input Data');
+            })
+        
+            return requestWithWorkTime;
     }
 }

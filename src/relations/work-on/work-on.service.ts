@@ -25,7 +25,12 @@ export class WorkOnService {
             .then((res: dbResponse) => {
 
                 return res.rows;
-            }); 
+            })
+            .catch((e)=>{
+                console.log(e);
+                throw new BadRequestException('Invalid input data');
+            });
+    ; 
         return allWorkOnThisShift;
     }
 
@@ -47,6 +52,11 @@ export class WorkOnService {
         .then((res: dbResponse) => {
             return res.rows;
         })
+        .catch((e)=>{
+            console.log(e);
+            throw new BadRequestException('Invalid input data');
+        });
+
         return freeWorkers;
     }
 
