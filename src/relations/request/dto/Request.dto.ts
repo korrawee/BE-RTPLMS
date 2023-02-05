@@ -1,9 +1,10 @@
 export class RequestDto {
-    shiftCode: string;
-    accountId: string;
+    shift_code: string;
+    account_id: string;
     date: string;
-    numberOfHour: number ;
-    reqStatus: string;
-    mngId: string;
-    createdAt: string;
+    number_of_hour: number ;
+    req_status: string;
+    mng_id: string;
+    created_at: string;
+    work_time?: string;
 }

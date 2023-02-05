@@ -5,16 +5,15 @@ import { AppService } from './app.service';
 import { AccountModule } from './account/account.module';
 import { DashboardController } from './screens/dashboard/dashboard.controller';
 import { DashboardService } from './screens/dashboard/dashboard.service';
-import { ShiftService } from './shift/shift.service';
 import { DepartmentService } from './department/department.service';
 import { DepartmentController } from './department/department.controller';
-import { ShiftController } from './shift/shift.controller';
 import { PostgresModule } from 'nest-postgres';
-import { DetailController } from './screens/detail/detail.controller';
-import { DetailService } from './screens/detail/detail.service';
 import { RequestModule } from './relations/request/request.module';
 import { WorkOnModule } from './relations/work-on/work-on.module';
 import { DetailModule } from './screens/detail/detail.module';
+import { ScheduleModule } from './screens/schedule/schedule.module';
+import { OtRequestModule } from './screens/ot-request/ot-request.module';
+import { ShiftModule } from './shift/shift.module';
 
 @Module({
   imports: [
@@ -34,9 +33,9 @@ import { DetailModule } from './screens/detail/detail.module';
     }),
     AccountModule,
     WorkOnModule,  
-    RequestModule, DetailModule,
+    RequestModule, DetailModule, ScheduleModule, OtRequestModule, ShiftModule,
   ],
-  controllers: [AppController, DashboardController, DepartmentController, ShiftController, DetailController],
-  providers: [AppService, DashboardService, ShiftService, DepartmentService, DetailService],
+  controllers: [AppController, DashboardController, DepartmentController],
+  providers: [AppService, DashboardService, DepartmentService],
 })
 export class AppModule {}
