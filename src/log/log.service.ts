@@ -73,7 +73,7 @@ export class LogService {
         
         const res = await this.cnn.query(query)
         .then((res: dbResponse)=>{
-            return res;
+            return {message:`Deleted log number ${logId}.`};
         })
         .catch(e=>{
             console.log(e);
