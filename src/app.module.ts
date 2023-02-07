@@ -14,6 +14,8 @@ import { DetailModule } from './screens/detail/detail.module';
 import { ScheduleModule } from './screens/schedule/schedule.module';
 import { OtRequestModule } from './screens/ot-request/ot-request.module';
 import { ShiftModule } from './shift/shift.module';
+import { LogScreenModule } from './screens/log/log.module';
+import { LogModule } from './log/log.module';
 
 @Module({
   imports: [
@@ -33,7 +35,13 @@ import { ShiftModule } from './shift/shift.module';
     }),
     AccountModule,
     WorkOnModule,  
-    RequestModule, DetailModule, ScheduleModule, OtRequestModule, ShiftModule,
+    RequestModule, 
+    DetailModule, 
+    ScheduleModule, 
+    OtRequestModule, 
+    ShiftModule, 
+    LogModule, 
+    LogScreenModule,
   ],
   controllers: [AppController, DashboardController, DepartmentController],
   providers: [AppService, DashboardService, DepartmentService],
