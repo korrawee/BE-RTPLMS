@@ -43,7 +43,7 @@ CREATE TABLE logs(
         log_id serial primary key,
         create_at timestamp default now(),
         action text,
-        details text,
+        details json,
         mng_id text references accounts(account_id)
 );
 
