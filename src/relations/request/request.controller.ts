@@ -1,6 +1,7 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpException, HttpStatus, Injectable, Param, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Patch, Injectable, Param, Post, Query } from '@nestjs/common';
 import { CreateOtRequestDto } from './dto/createOtRequest.dto';
 import { DeleteOtRequest } from './dto/DeleteOtRequest.dto';
+import { UpdateOtRequestDto } from './dto/UpdateOtRequest.dto';
 import { RequestService } from './request.service';
 
 @Injectable()
@@ -22,4 +23,10 @@ export class RequestController {
     public async deleteOtRequest(@Body() body: DeleteOtRequest) {
         return await this.reqService.deleteOtRequest(body);
     }
+
+    @Patch()
+    public async updateRequestByShiftCodeAndAccountId(@Body() body: UpdateOtRequestDto){
+        return await this.reqService.updateRequestByShiftCodeAndAccountId(body)
+    }
+
 }

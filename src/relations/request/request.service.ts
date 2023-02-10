@@ -11,6 +11,7 @@ import { AccountService } from 'src/account/account.service';
 import { AccountDto } from 'src/account/dto/AccountDto';
 import { WorkOnDto } from '../work-on/dto/WorkOn.dto';
 import { isNumber } from 'class-validator';
+import { UpdateOtRequestDto } from './dto/UpdateOtRequest.dto';
 
 @Injectable()
 export class RequestService {
@@ -112,7 +113,6 @@ export class RequestService {
                     return str + (workOnLastIndex == currentIndex ? appendStr: appendStr + ',');
                 },'');
                 query = `INSERT INTO requests(shift_code, account_id, date, number_of_hour, mng_id) VALUES${values};`;
-                console.log(query);
                 break;
 
             case 'assignNormal':
@@ -122,7 +122,6 @@ export class RequestService {
                     return str + (accountIdsLastIndex == currentIndex ? appendStr: appendStr + ',');
                 },'');
                 query = `INSERT INTO requests(shift_code, account_id, date, number_of_hour, mng_id) VALUES${values};`;
-                console.log(query);
                 break;
 
             default:
@@ -132,7 +131,6 @@ export class RequestService {
                     return str + (accountIdsLastIndex == currentIndex ? appendStr: appendStr + ',');
                 },'');
                 query = `INSERT INTO requests(shift_code, account_id, date, number_of_hour, mng_id) VALUES${values};`;
-                console.log(query);
                 break;
                 
         }
@@ -206,7 +204,7 @@ export class RequestService {
         await this.cnn.query(query)
             .catch((e)=>{
                 console.log(e);
-                throw new BadRequestException('Invalid account id');
+                throw new BadRequestException('Invalid data input');
             });
     }
 
@@ -226,9 +224,51 @@ export class RequestService {
             })
             .catch((e)=>{
                 console.log(e);
-                throw new BadRequestException('Invalid account id');
+                throw new BadRequestException('Invalid data input');
             });
 
         return requests;
+    }
+
+    public async updateRequestByShiftCodeAndAccountId(body: UpdateOtRequestDto){
+        const {shift_code, account_id} = body;
+        delete body.account_id;
+        delete body.shift_code;
+
+        const columns = Object.keys(body)
+        const valueArray = Object.values(body)
+        
+        const valuesLastIndex = valueArray.length - 1;
+        
+        const values = valueArray.reduce((str, v, currentIndex)=>{
+            const value = (typeof(v) === 'string') ? `'${v}'`:`${v}` ;
+            return str + (currentIndex == valuesLastIndex ? value:(value + ','));
+        },'');
+
+        let query: string;
+        if(columns.length == 1 && valueArray.length == 1) {
+            query = `
+                UPDATE requests
+                SET ${columns} = ${values}
+                WHERE shift_code='${shift_code}' AND account_id='${account_id}';
+            `;
+        }else{
+            query = `
+                UPDATE requests
+                SET (${columns}) = (${values})
+                WHERE shift_code='${shift_code}' AND account_id='${account_id}';
+            `;
+        }
+        // query to check if shift_code and account id exists
+        console.log(columns,values,query);
+        const result = await this.cnn.query(query)
+            .then((res: dbResponse)=>{
+                return {message: `Updated ot request of account number ${account_id} for shift number ${shift_code}.`}
+            })
+            .catch(e=>{
+                console.log(e);
+                throw new BadRequestException('Invalid data input')
+            })
+        return result;
     }
 }
