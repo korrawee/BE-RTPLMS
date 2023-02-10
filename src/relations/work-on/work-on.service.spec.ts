@@ -4,6 +4,7 @@ import { getConnectionName } from 'nest-postgres';
 import { dbResponse } from 'src/db/db.response.type';
 import { Client } from 'pg';
 import { WorkOnPostDeleteDto } from './dto/WorkOnPostDeleteDto';
+import { FilteredAccountDto } from 'src/relations/work-on/dto/FilteredAccount.dto';
 
 jest.mock('pg', () => {
   const mClient = {
@@ -85,6 +86,9 @@ describe('WorkOnService', () => {
   
   })
   it('should find get free worker by managerId and date', async () => {
+    const mngId = '1';
+    const shiftCode = '2';
+    const date = '2023-01-09';
     const res = {...dbRes};
     const queryData = [
       {
@@ -97,7 +101,7 @@ describe('WorkOnService', () => {
     res['rows'] = queryData;
 
     mClient.query.mockResolvedValueOnce(res);
-    expect(await service.getFreeWorker('1', '2023-01-09')).toEqual(queryData);
+    expect(await service.getFreeWorker(mngId, shiftCode, date)).toEqual(queryData);
   
   })
   it('should create work_on', async () => {
@@ -143,7 +147,7 @@ describe('WorkOnService', () => {
   })
 
   it('should get work on of given shift', async () => {
-    const res = [{
+    const data = [{
       "account_id": "1",
       "shift_code": "2",
       "checkin_time": null,
@@ -153,10 +157,33 @@ describe('WorkOnService', () => {
     },];
     const shiftCode = '2';
     const date = '2023-01-09';
+
+    const res = {...dbRes};
+    res['rows'] = [...data]
     
     mClient.query.mockResolvedValueOnce(res);
-    expect(await service.getWorkOnOfShift(shiftCode, date)).toEqual(res);
+    expect(await service.getWorkOnOfShift(shiftCode, date)).toEqual(data);
   
+  })
+
+  it('should get filtered account ids', async () => {
+    const shiftId = '1';
+    const sortBy = 'person';
+    const quantity = 2;
+    const data: FilteredAccountDto[] = [
+      {
+        account_id: '2',
+      },
+      {
+        account_id: '3',
+      }
+    ]
+
+    const res = {...dbRes};
+    res['rows'] = [...data];
+
+    mClient.query.mockResolvedValueOnce(res);
+    expect(await service.getAccountIdSortByCheckIn(shiftId, quantity)).toEqual(data);
   })
  
 });
