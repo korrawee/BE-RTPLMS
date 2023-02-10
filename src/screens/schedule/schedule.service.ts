@@ -2,8 +2,9 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { Client } from 'pg';
 import { InjectClient } from 'nest-postgres';
 import { dbResponse } from 'src/db/db.response.type';
-import { ScheduleDataDto } from './dto/scheduleData.dto';
 import { isNumber } from 'class-validator';
+import { WorkPlanSchedule } from './dto/WorkPlanSchedule.dto';
+import { OtPlanSchedule } from './dto/OtPlanSchedule.dto';
 
 @Injectable()
 export class ScheduleService {
@@ -18,7 +19,7 @@ export class ScheduleService {
             w as (
                     SELECT * 
                     FROM work_on 
-                    where account_id='${accId}'
+                    where account_id='3'
                     ),
             w_to_s as (
                     SELECT w.*, 
@@ -44,20 +45,14 @@ export class ScheduleService {
                     FROM departments AS d 
                     INNER JOIN s_to_c 
                     ON d.department_id=s_to_c.department_id
-                    ),
-            s_to_c_to_d_to_r as (
-                    SELECT prev.*, r.shift_code, r.number_of_hour, r.date AS ot_date, r.mng_id
-                    FROM s_to_c_to_d AS prev
-                    LEFT JOIN requests AS r
-                    ON prev.account_id=r.account_id AND prev.shift_code=r.shift_code
                     )
-            SELECT prev.account_id AS worker_id, prev.name AS department_name, prev.checkin_time, prev.checkout_time, prev.checkin_status, prev.shift_time, prev.number_of_hour AS ot_duration, prev.ot_date, prev.mng_id, a.fullname AS mng_name
-            FROM s_to_c_to_d_to_r as prev
+            SELECT prev.name AS department_name, prev.checkin_time, prev.checkout_time, prev.checkin_status, prev.shift_time, prev.date
+            FROM s_to_c_to_d as prev
             INNER JOIN accounts as a 
             ON a.account_id=prev.account_id;
         `;
 
-        const workerSchedule: ScheduleDataDto[] = await this.cnn.query(query)
+        const workPlanSchedule: WorkPlanSchedule[] = await this.cnn.query(query)
             .then((res: dbResponse) => {
                 return res.rows;
             })
@@ -65,6 +60,48 @@ export class ScheduleService {
                 console.log(e);
                 throw new BadRequestException('Invalid input data');
             });
-        return workerSchedule;
+
+
+        return workPlanSchedule;
+    }
+
+    async getOtScheduleByAccountId(accId: string) {
+        const query = `
+            WITH
+            r as (
+                SELECT *
+                FROM requests
+                WHERE account_id='${accId}'
+            ),
+            to_s as (
+                SELECT prev.*, s.shift_time
+                FROM r AS prev
+                INNER JOIN shifts AS s
+                ON prev.shift_code=s.shift_code
+            ),
+            to_c as (
+                SELECT prev.*, c.department_id
+                FROM to_s AS prev
+                INNER JOIN _controls AS c
+                ON prev.shift_code=c.shift_code
+            ),
+            to_d as (
+                SELECT prev.*, d.name AS department_name
+                FROM to_c AS prev
+                INNER JOIN departments AS d
+                ON prev.department_id=d.department_id
+            )
+            SELECT prev.date, prev.shift_time, prev.number_of_hour, prev.req_status, prev.create_at, prev.department_name
+            FROM to_d AS prev;
+        `;
+        const otSchedule:  OtPlanSchedule = await this.cnn.query(query)
+            .then((res: dbResponse) => {
+                return res.rows;
+            })
+            .catch(e=>{
+                console.log(e);
+                throw new BadRequestException('Invalid input data');
+            });
+        return otSchedule;
     }
 }

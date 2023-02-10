@@ -1,4 +1,4 @@
-export class ScheduleDataDto {
+export class Schedule {
     worker_id: string;
     department_name: string;
     checkin_time: string;
