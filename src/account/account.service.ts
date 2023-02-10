@@ -110,4 +110,27 @@ export class AccountService {
 
         return data;
     }
+
+    public async findByEmailPassword(user: string, pass: string) {
+        const query = `
+            SELECT * 
+            FROM accounts 
+            WHERE username='${user}' AND password='${pass}';
+        `
+
+        const data: AccountDto = await this.cnn.query(query)
+            .then((res: dbResponse) => {
+                if(res.rows.length == 0){
+                    throw new BadRequestException(`Wrong email or password`);
+                }
+                return res.rows.pop();
+            })
+            .catch((error: any) => {
+                console.error(error);
+                throw new BadRequestException('Invalid input data');
+
+            });
+
+        return data;
+    }
 }
