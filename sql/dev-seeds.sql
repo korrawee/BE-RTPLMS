@@ -1,13 +1,13 @@
 do $$
 declare
-    index integer := 1;
+    index integer := 2;
 begin
     INSERT INTO accounts VALUES (
-        '0',
-        concat('user', cast(0 AS text)),
+        '1',
+        concat('user', cast(1 AS text)),
         '1234',
-        concat('full-name', cast(0 AS text)),
-        'worker',
+        concat('full-name', cast(1 AS text)),
+        'manager',
         '0981',
         12.0,
         '{"data": "eiei"}', 
