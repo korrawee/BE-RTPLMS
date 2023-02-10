@@ -38,6 +38,6 @@ export class OtRequestService {
 
         const workTime = `${startTime}-${endTime}`;
 
-        return {...reqObj, workTime}
+        return {...reqObj, work_time: workTime}
     }
 }
