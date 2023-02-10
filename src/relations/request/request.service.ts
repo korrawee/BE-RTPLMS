@@ -4,7 +4,7 @@ import { dbResponse } from 'src/db/db.response.type';
 import { Client } from 'pg';
 import { RequestForOtDetailDto } from './dto/RequestForOtDetail.dto';
 import { RequestDto } from './dto/Request.dto';
-import { CreateOtRequestDto } from './dto/createOtRequest.dto';
+import { CreateOtRequestDto } from './dto/CreateOtRequest.dto';
 import { WorkOnService } from '../work-on/work-on.service';
 import { DeleteOtRequest } from './dto/DeleteOtRequest.dto';
 import { AccountService } from 'src/account/account.service';

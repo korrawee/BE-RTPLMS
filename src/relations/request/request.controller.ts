@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, Patch, Injectable, Param, Post, Query } from '@nestjs/common';
-import { CreateOtRequestDto } from './dto/createOtRequest.dto';
+import { CreateOtRequestDto } from './dto/CreateOtRequest.dto';
 import { DeleteOtRequest } from './dto/DeleteOtRequest.dto';
 import { UpdateOtRequestDto } from './dto/UpdateOtRequest.dto';
 import { RequestService } from './request.service';
