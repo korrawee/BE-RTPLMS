@@ -17,6 +17,7 @@ import { ShiftModule } from './shift/shift.module';
 import { LogScreenModule } from './screens/log/log.module';
 import { LogModule } from './log/log.module';
 import { LoginModule } from './screens/login/login.module';
+import { ControlModule } from './relations/control/control.module';
 
 @Module({
   imports: [
@@ -42,7 +43,7 @@ import { LoginModule } from './screens/login/login.module';
     OtRequestModule, 
     ShiftModule, 
     LogModule, 
-    LogScreenModule, LoginModule,
+    LogScreenModule, LoginModule, ControlModule,
   ],
   controllers: [AppController, DashboardController, DepartmentController],
   providers: [AppService, DashboardService, DepartmentService],

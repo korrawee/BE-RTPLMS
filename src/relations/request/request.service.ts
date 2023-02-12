@@ -1,5 +1,5 @@
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { InjectClient } from 'nest-postgres';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { dbResponse } from 'src/db/db.response.type';
 import { Client } from 'pg';
 import { RequestForOtDetailDto } from './dto/RequestForOtDetail.dto';
@@ -12,6 +12,11 @@ import { AccountDto } from 'src/account/dto/AccountDto';
 import { WorkOnDto } from '../work-on/dto/WorkOn.dto';
 import { isNumber } from 'class-validator';
 import { UpdateOtRequestDto } from './dto/UpdateOtRequest.dto';
+import { LogService } from 'src/log/log.service';
+import { CreateLogDto } from 'src/log/dto/CreateLog.dto';
+import { DetailsDto } from 'src/log/dto/Details.dto';
+import { DepartmentforDashboardDto } from 'src/department/dto/DepartmentforDashboard.dto';
+import { ControlService } from '../control/control.service';
 
 @Injectable()
 export class RequestService {
@@ -20,6 +25,8 @@ export class RequestService {
         private readonly cnn: Client,
         private readonly workOnService: WorkOnService,
         private readonly accountService: AccountService,
+        private readonly controlService: ControlService,
+        private readonly logService: LogService
     ){}
 
     public getRequest(shiftCode: string, accountId: string, date: string){
@@ -70,7 +77,7 @@ export class RequestService {
 
                 // Check if ot duration is took too long
                 if(otDurationPerPerson > 4){ 
-                    throw new BadRequestException('Invalid worker quantity')
+                    throw new BadRequestException('Invalid worker quantity (too many OT hours)')
                 }
 
                 accountIdsLastIndex = accounts?.length - 1;
@@ -92,7 +99,7 @@ export class RequestService {
                 // Check if ot duration is took too long
                 console.log(accounts, otDurationPerPerson, performances);
                 if(otDurationPerPerson > 4){ 
-                    throw new BadRequestException('Invalid worker quantity')
+                    throw new BadRequestException('Invalid worker quantity (too many OT hours)')
                 }
                 
                 accountIdsLastIndex = accounts?.length - 1;
@@ -135,16 +142,79 @@ export class RequestService {
                 
         }
         
-        const data: Promise<RequestDto[]> = await this.cnn.query(query).
-        then((res: dbResponse)=>{
+        const data: Promise<RequestDto[]> = await this.cnn.query(query)
+        .then((res: dbResponse)=>{   
             const resResult: RequestDto[] = res.rows;
             return resResult;
+        })
+        .then(async()=>{
+            /* Create log */
+            // ==================================================
+            // ==================================================
+            const department: DepartmentforDashboardDto = await this.controlService.getDepartmentInfoByShiftId(body.shiftCode);
+            const logDetail: DetailsDto = {
+                department: department.name,
+                department_id: department.department_id,
+                account_id: body.accountIds
+            }
+            console.log('department data : ',department);
+            const log: CreateLogDto = {
+                mng_id: body.mngId,
+                action: "Add OT",
+                details: logDetail
+            }
+
+             const createLog = await this.logService.createLog(log)
+            // ==================================================
+            // ==================================================
         })
         .catch((e)=>{
             console.log(e);
             throw new BadRequestException('Invalid data input');
         });
         return data;
+    }
+
+    public async deleteOtRequest(body: DeleteOtRequest) {
+        const accountIdsLastIndex = body.accountIds.length - 1;
+        const values = body.accountIds.reduce((str, accountId, currentIndex) => {
+            const appendStr = `'${accountId}'`;
+            return str + (accountIdsLastIndex == currentIndex ? appendStr: appendStr + ',');
+        },'');
+        const query = `
+            DELETE FROM requests 
+            WHERE account_id IN (${values})
+            AND shift_code='${body.shiftCode}';
+        `;
+
+        await this.cnn.query(query)
+            .then((res: dbResponse)=>{
+                return res.rows;
+            })
+            .then(async()=>{
+                /* Create log */
+                // ==================================================
+                // ==================================================
+                const department: DepartmentforDashboardDto = await this.controlService.getDepartmentInfoByShiftId(body.shiftCode);
+                const logDetail: DetailsDto = {
+                    department: department.name,
+                    department_id: department.department_id,
+                    account_id: body.accountIds
+                }
+                const log: CreateLogDto = {
+                    mng_id: body.mngId,
+                    action: "Delete OT",
+                    details: logDetail
+                }
+
+                const createLog = await this.logService.createLog(log)
+                // ==================================================
+                // ==================================================
+            })
+            .catch((e)=>{
+                console.log(e);
+                throw new BadRequestException('Invalid data input');
+            });
     }
 
     private async getOtDurationPerPersonOfShift(shiftCode: string, accounts: AccountDto[]): Promise<number>{
@@ -189,24 +259,7 @@ export class RequestService {
         return otDurationPerPerson;
     }
 
-    public async deleteOtRequest(body: DeleteOtRequest) {
-        const accountIdsLastIndex = body.accountIds.length - 1;
-        const values = body.accountIds.reduce((str, accountId, currentIndex) => {
-            const appendStr = `'${accountId}'`;
-            return str + (accountIdsLastIndex == currentIndex ? appendStr: appendStr + ',');
-        },'');
-        const query = `
-            DELETE FROM requests 
-            WHERE account_id IN (${values})
-            AND shift_code='${body.shiftCode}';
-        `;
-
-        await this.cnn.query(query)
-            .catch((e)=>{
-                console.log(e);
-                throw new BadRequestException('Invalid data input');
-            });
-    }
+   
 
     public async getRequestByAccountId(accId: string){
         if(!isNumber(parseInt(accId))) throw new BadRequestException('Invalid account id');

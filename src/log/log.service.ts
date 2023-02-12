@@ -3,14 +3,15 @@ import { isEmpty, isNumber } from 'class-validator';
 import { InjectClient } from 'nest-postgres';
 import { Client } from 'pg';
 import { dbResponse } from 'src/db/db.response.type';
+import { DepartmentforDashboardDto } from 'src/department/dto/DepartmentforDashboard.dto';
+import { ControlService } from 'src/relations/control/control.service';
 import { CreateLogDto } from './dto/CreateLog.dto';
 import { LogDto } from './dto/Log.dto';
 
 @Injectable()
 export class LogService {
     constructor( 
-        @InjectClient() private readonly cnn: Client
-    ){}
+        @InjectClient() private readonly cnn: Client){}
 
     public async getAllByIdAndDate(mngId: string, date: string){
         if(!isNumber(parseInt(mngId))) throw new BadRequestException('Invalid manager id');
@@ -36,17 +37,24 @@ export class LogService {
     public async createLog(body: CreateLogDto){
         // Convert body object to string of column names and values
         const columns = Object.keys(body).toString();
-        let values = Object.values(body)
+        const values = Object.values(body)
         const valuesLastIndex = values.length - 1;
             
-        values = values.reduce((str, v, currentIndex)=>{
-            const value = `'${v}'`;
-            return str + (currentIndex == valuesLastIndex) ? value:(value + ',');
+        const queryValues = values.reduce((str, v, currentIndex)=>{
+            let value: string;
+            if(typeof(v) === 'object'){
+                value = `'${JSON.stringify(v)}'`;
+            }else{
+                value = `'${v}'`;
+            }
+            return str + ((currentIndex == valuesLastIndex) ? value:(value + ','));
         },''); 
-
+        console.log(columns);
+        console.log(values);
+        console.log(queryValues);
         const query = `
             INSERT INTO logs(${columns}) 
-            VALUES(${values});
+            VALUES(${queryValues});
         `;
 
         const logs: LogDto[] = await this.cnn.query(query)
