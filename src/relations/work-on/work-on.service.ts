@@ -9,7 +9,7 @@ import { CreateLogDto } from 'src/log/dto/CreateLog.dto';
 import { DepartmentforDashboardDto } from 'src/department/dto/DepartmentforDashboard.dto';
 import { ControlService } from '../control/control.service';
 import { LogService } from 'src/log/log.service';
-import { DetailsDto } from 'src/log/dto/details.dto';
+import { DetailsDto } from 'src/log/dto/Details.dto';
 @Injectable()
 export class WorkOnService {
     constructor(
