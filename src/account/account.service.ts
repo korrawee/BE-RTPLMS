@@ -111,7 +111,7 @@ export class AccountService {
         return data;
     }
 
-    public async findByEmailPassword(user: string, pass: string) {
+    public async findByUsernamePassword(user: string, pass: string) {
         const query = `
             SELECT * 
             FROM accounts 
@@ -123,6 +123,7 @@ export class AccountService {
                 if(res.rows.length == 0){
                     throw new BadRequestException(`Wrong email or password`);
                 }
+
                 return res.rows.pop();
             })
             .catch((error: any) => {

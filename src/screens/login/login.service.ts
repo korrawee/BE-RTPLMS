@@ -10,7 +10,7 @@ export class LoginService {
     public async login(body: LoginDto){
         const {username, password} = body;
 
-        const acc: AccountDto = await this.accountService.findByEmailPassword(username, password);
+        const acc: AccountDto = await this.accountService.findByUsernamePassword(username, password);
 
         const res = {
             id: acc.account_id,
