@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, ConsoleLogger, Injectable } from '@nestjs/common';
 import { dbResponse } from 'src/db/db.response.type';
 import { ShiftforDashboardDto } from './dto/ShiftForDashboard.dto';
 import { ShiftforDashboardAttrDto } from './dto/ShiftForDashboardAttr.dto';
@@ -7,14 +7,14 @@ import { Client } from 'pg';
 import { InjectClient } from 'nest-postgres';
 import { UpdateShiftDto } from './dto/UpdateShift.dto';
 import { ShiftDto } from './dto/Shift.dto';
-const moment = require('moment');
+import moment = require('moment');
 
 @Injectable()
 export class ShiftService {
     constructor(@InjectClient() private readonly cnn: Client){}
 
     async getShiftsById(departmentsId: string[]){
-
+        console.log('in getshiftByID')
         const result: Promise<ShiftforDashboardDto[]> = Promise.all(departmentsId.map(async (departmentId: string)=>{
 
             const query: string = `select shift_code from _controls where department_id='${departmentId}'`;
@@ -37,16 +37,10 @@ export class ShiftService {
     }
 
     public async getshifts(shiftInDepartment: ShiftInDepartmentDto[]) {
-        
         const data: Promise<ShiftforDashboardDto[]> = Promise.all(shiftInDepartment.map(async (obj: ShiftInDepartmentDto) => {
         // return Promise.all(shiftInDepartment.map(async (obj: ShiftInDepartmentDto) => {
             const query = `
-                            SELECT shift_code,
-                                success_product,
-                                all_member,
-                                checkin_member,
-                                shift_time,
-                                date
+                            SELECT *
                             FROM shifts 
                             WHERE shift_code='${+obj.shift_code}'
                         `
@@ -58,11 +52,12 @@ export class ShiftService {
                 .then((shift: ShiftforDashboardAttrDto) => {
                     const res: ShiftforDashboardDto = {
                         shiftCode: shift.shift_code,
-                        shiftDate: shift.date,
+                        shiftDate: moment(shift.date).format('DD/MM/YYYY'),
                         shiftTime: shift.shift_time,
                         successProduct: shift.success_product,
                         allMember: shift.all_member,
                         checkInMember: shift.checkin_member,
+                        idealPerformance: shift.ideal_performance
                     }
 
                     return res;
@@ -74,12 +69,13 @@ export class ShiftService {
                 });
 
             return shift;
-        })).then(res=>{
+        }))
+        // .then(res=>{
             
-            return res;
-        });
+        //     return res;
+        // });
 
-        return data.then((res)=>(res.pop()));
+        return data.then((res)=>(res));
     }
 
     public async getShiftTimeById(shiftCode: string){

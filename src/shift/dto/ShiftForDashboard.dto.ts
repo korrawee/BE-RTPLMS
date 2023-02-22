@@ -5,4 +5,5 @@ export class ShiftforDashboardDto {
     successProduct: number;
     allMember: number;
     checkInMember: number;
+    idealPerformance: number;
 }
