@@ -6,7 +6,7 @@ export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Get('')
-  hello(){
-    return "Hello from API...";
+  async hello(){
+    return await this.appService.getUsers();
   }
 }

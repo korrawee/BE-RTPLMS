@@ -18,6 +18,7 @@ import { LogScreenModule } from './screens/log/log.module';
 import { LogModule } from './log/log.module';
 import { LoginModule } from './screens/login/login.module';
 import { ControlModule } from './relations/control/control.module';
+import { KafkaModule } from './kafka/kafka.module';
 
 @Module({
   imports: [
@@ -43,7 +44,7 @@ import { ControlModule } from './relations/control/control.module';
     OtRequestModule, 
     ShiftModule, 
     LogModule, 
-    LogScreenModule, LoginModule, ControlModule,
+    LogScreenModule, LoginModule, ControlModule, KafkaModule,
   ],
   controllers: [AppController, DashboardController, DepartmentController],
   providers: [AppService, DashboardService, DepartmentService],

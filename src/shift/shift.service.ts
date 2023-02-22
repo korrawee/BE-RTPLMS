@@ -5,7 +5,9 @@ import { ShiftforDashboardAttrDto } from './dto/ShiftForDashboardAttr.dto';
 import { ShiftInDepartmentDto } from './dto/ShiftInDepartment.dto';
 import { Client } from 'pg';
 import { InjectClient } from 'nest-postgres';
-import { RequestDto } from 'src/relations/request/dto/Request.dto';
+import { UpdateShiftDto } from './dto/UpdateShift.dto';
+import { ShiftDto } from './dto/Shift.dto';
+const moment = require('moment');
 
 @Injectable()
 export class ShiftService {
@@ -98,5 +100,65 @@ export class ShiftService {
             })
         
             return requestWithWorkTime;
+    }
+
+    public async getShiftById(shiftCode: string){
+        const query = `
+            SELECT *
+            FROM shifts
+            WHERE shift_code='${shiftCode}'
+            ;
+        `;
+
+        const shift: ShiftDto = await this.cnn.query(query)
+            .then((res: dbResponse)=>{
+                return res.rows.pop();
+            })
+            .catch(e=>{
+                console.log(e);
+                throw new BadRequestException('Invalid input Data');
+            })
+        return shift;
+    }
+
+    public async updateShift(body: UpdateShiftDto){
+        const lastIndexCol = Object.keys(body).length - 1;
+        const columns = Object.keys(body).reduce((str, col, currentIndex)=>{
+            return str + ((currentIndex == lastIndexCol) ? col:col + ',') ;
+        },'');
+        
+        const lastIndexVal = Object.values(body).length - 1;
+        const values = Object.values(body).reduce((str, val, currentIndex)=>{
+            if(typeof(val) === 'string'){
+                val = `'${val}'`;
+            }else if(typeof(val) === 'object'){
+                // const d = new Date(val);
+                // val = `'${d.getFullYear()}-${d.getMonth()}-${d.getDate()}'`;
+                val = moment(val).format("'YYYY-MM-DD'");
+                console.log(val);
+            }else{
+                
+            }
+            return str + ((currentIndex == lastIndexVal) ? val:val + ',') ;
+        },'');
+        
+        const query = `
+            UPDATE shifts
+            SET (${columns}) = (${values})
+            WHERE shift_code='${body.shift_code}'
+            RETURNING *
+        ;`;
+        console.log(query);
+        
+        const shift = await this.cnn.query(query)
+        .then((res: dbResponse)=>{
+                return res.rows.pop();
+            })
+            .catch(e=>{
+                console.log(e);
+                throw new BadRequestException('Invalid input Data');
+            })
+        
+        return shift; 
     }
 }
