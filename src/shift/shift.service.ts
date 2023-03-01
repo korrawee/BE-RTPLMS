@@ -13,11 +13,16 @@ import moment = require('moment');
 export class ShiftService {
     constructor(@InjectClient() private readonly cnn: Client){}
 
-    async getShiftsById(departmentsId: string[]){
+    async getShiftsById(departmentsId: string[], date=moment().format('YYYY-MM-DD')){
         console.log('in getshiftByID')
         const result: Promise<ShiftforDashboardDto[]> = Promise.all(departmentsId.map(async (departmentId: string)=>{
 
-            const query: string = `select shift_code from _controls where department_id='${departmentId}'`;
+            const query: string = `
+                SELECT shift_code 
+                FROM _controls 
+                WHERE department_id='${departmentId}' 
+                AND shift_date='${date}'
+            `;
 
             const shiftInDepartment: ShiftforDashboardDto = await this.cnn.query(query)
 
