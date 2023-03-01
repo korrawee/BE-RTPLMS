@@ -32,7 +32,7 @@ export class ShiftService {
             return shiftInDepartment;
         }));
         
-        console.log(await result);
+        // console.log(await result);
         return await result;
     }
 
@@ -52,7 +52,7 @@ export class ShiftService {
                 .then((shift: ShiftforDashboardAttrDto) => {
                     const res: ShiftforDashboardDto = {
                         shiftCode: shift.shift_code,
-                        shiftDate: moment(shift.date).format('DD/MM/YYYY'),
+                        shiftDate: moment(shift.date).format('YYYY/MM/DD'),
                         shiftTime: shift.shift_time,
                         successProduct: shift.success_product,
                         allMember: shift.all_member,
