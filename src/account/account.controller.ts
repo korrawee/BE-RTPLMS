@@ -17,10 +17,13 @@ export class AccountController {
     @Post()
     create(@Body() createAccountDto: CreateAccountDto) {
         return this.accountService.create(createAccountDto);
-    };
+    }
 
     @Patch(':id/:newUsername')
-    updateUsername(@Param('id') id: string, @Param('newUsername') newUsername: string) {
+    updateUsername(
+        @Param('id') id: string,
+        @Param('newUsername') newUsername: string
+    ) {
         return this.accountService.updateUsername(id, newUsername);
-    };
+    }
 }
