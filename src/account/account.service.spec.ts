@@ -209,10 +209,12 @@ describe('AccountService', () => {
                     testData.id,
                     testData.newUsername
                 );
-                expect(result).toEqual([{
-                    ...data,
-                    username: testData.newUsername,
-                }]);
+                expect(result).toEqual([
+                    {
+                        ...data,
+                        username: testData.newUsername,
+                    },
+                ]);
             });
         });
 
@@ -220,15 +222,14 @@ describe('AccountService', () => {
             it('should throw BadRequestException with message "account id must be an integer"', async () => {
                 // Mock the database response
                 const testData = { id: '1', newUsername: 'somyos' };
-                
-                jest.spyOn(mClient,'query').mockRejectedValueOnce(new BadRequestException(expect.any(String)))
-                
-                await expect(service.updateUsername(
-                    testData.id,
-                    testData.newUsername
-                )).rejects.toThrow(
-                    BadRequestException
+
+                jest.spyOn(mClient, 'query').mockRejectedValueOnce(
+                    new BadRequestException(expect.any(String))
                 );
+
+                await expect(
+                    service.updateUsername(testData.id, testData.newUsername)
+                ).rejects.toThrow(BadRequestException);
             });
         });
     });

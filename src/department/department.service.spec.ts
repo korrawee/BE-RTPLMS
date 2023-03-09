@@ -49,37 +49,35 @@ beforeEach(async () => {
 });
 
 describe('DepartmentService', () => {
-
-    describe('getDepartmentsById', ()=>{
+    describe('getDepartmentsById', () => {
         const expectData: DepartmentforDashboardDto[] = [
             {
                 department_id: '1',
                 name: 'ต้มไก่',
-            }
+            },
         ];
         const res = { ...dbRes };
         res['rows'] = [...expectData];
-        
-        describe('given a valid manager id', ()=>{
-            it('should return department data', async ()=>{
+
+        describe('given a valid manager id', () => {
+            it('should return department data', async () => {
                 const testData = '1';
-            
+
                 mClient.query.mockResolvedValueOnce(Promise.resolve(res));
-            
-                expect(await service.getDepartmentsById('1')).toEqual(expectData);                
+
+                expect(await service.getDepartmentsById('1')).toEqual(
+                    expectData
+                );
             });
         });
-        describe('given an invalid manager id', ()=>{
-            it('should return a bad request expection', async ()=>{
-                
+        describe('given an invalid manager id', () => {
+            it('should return a bad request expection', async () => {
                 const testData = 'bad-id';
 
-                
-                await expect(service.getDepartmentsById(
-                    testData
-                )).rejects.toThrow(
-                    BadRequestException
-                );            });
+                await expect(
+                    service.getDepartmentsById(testData)
+                ).rejects.toThrow(BadRequestException);
+            });
         });
     });
 });

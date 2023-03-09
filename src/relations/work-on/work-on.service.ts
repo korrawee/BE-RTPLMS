@@ -58,15 +58,16 @@ export class WorkOnService {
             SELECT worker_of_mng.account_id, worker_of_mng.fullname, worker_of_mng.performance 
             FROM worker_of_mng 
             WHERE worker_of_mng.account_id NOT IN (SELECT account_id from worker_in_shift);
-        `
-        const freeWorkers = this.cnn.query(query)
-        .then((res: dbResponse) => {
-            return res.rows;
-        })
-        .catch((e)=>{
-            console.log(e);
-            throw new BadRequestException('Invalid input data');
-        });
+        `;
+        const freeWorkers = this.cnn
+            .query(query)
+            .then((res: dbResponse) => {
+                return res.rows;
+            })
+            .catch((e) => {
+                console.log(e);
+                throw new BadRequestException('Invalid input data');
+            });
 
         return freeWorkers;
     }

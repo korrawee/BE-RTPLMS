@@ -13,13 +13,13 @@ describe('LogService', () => {
         };
         return { Client: jest.fn(() => mClient) };
     });
-    
+
     const mClient = {
         connect: jest.fn(),
         query: jest.fn(),
         end: jest.fn(),
     };
-    
+
     const dbRes: dbResponse = {
         command: '',
         rowCount: 1,
@@ -29,7 +29,7 @@ describe('LogService', () => {
         RowCtor: null,
         rowAsArray: true,
     };
-    
+
     let service: LogService;
     let client: Client;
     beforeEach(async () => {
@@ -43,7 +43,7 @@ describe('LogService', () => {
                 },
             ],
         }).compile();
-    
+
         service = module.get<LogService>(LogService);
     });
 

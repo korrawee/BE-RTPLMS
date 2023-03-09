@@ -55,7 +55,6 @@ beforeAll(async () => {
     });
     await client.connect();
     await client.query(cleanUp);
-
 });
 
 beforeEach(async () => {
@@ -95,7 +94,7 @@ describe('DashboardController (e2e)', () => {
     });
 
     describe('given an invalid manager id and invalid date', () => {
-        describe('given invalid manager id', ()=>{
+        describe('given invalid manager id', () => {
             it('should have status code 400', async () => {
                 const uri = `/dashboard/badId/0`;
                 const { status, body } = await request(app.getHttpServer()).get(
@@ -104,8 +103,8 @@ describe('DashboardController (e2e)', () => {
                 console.log(body);
                 expect(status).toBe(400);
             });
-        })
-        describe('given invalid date', ()=>{
+        });
+        describe('given invalid date', () => {
             it('should have status code 400', async () => {
                 const uri = `/dashboard/0/badDate`;
                 const { status, body } = await request(app.getHttpServer()).get(
@@ -114,8 +113,8 @@ describe('DashboardController (e2e)', () => {
                 console.log(body);
                 expect(status).toBe(400);
             });
-        })
-        describe('given an invalid manager id and invalid date', ()=>{
+        });
+        describe('given an invalid manager id and invalid date', () => {
             it('should have status code 400', async () => {
                 const uri = `/dashboard/badId/badDate`;
                 const { status, body } = await request(app.getHttpServer()).get(
@@ -124,6 +123,6 @@ describe('DashboardController (e2e)', () => {
                 console.log(body);
                 expect(status).toBe(400);
             });
-        })
+        });
     });
 });

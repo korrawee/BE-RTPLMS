@@ -111,9 +111,12 @@ export class AccountService {
             throw new BadRequestException('account id must be an integer');
 
         const query = `UPDATE accounts SET username='${newUsername}' WHERE account_id='${id}';`;
-        const data = await this.cnn.query(query)
-        .then((res: dbResponse)=>(res.rows))
-        .catch((e)=> {throw new BadRequestException(e.message)})
+        const data = await this.cnn
+            .query(query)
+            .then((res: dbResponse) => res.rows)
+            .catch((e) => {
+                throw new BadRequestException(e.message);
+            });
 
         return data;
     }
