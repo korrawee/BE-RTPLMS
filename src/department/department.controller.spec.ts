@@ -3,23 +3,24 @@ import { DepartmentController } from './department.controller';
 import { DepartmentService } from './department.service';
 
 describe('DepartmentController', () => {
-  let controller: DepartmentController;
-  const mockDepartmentService = {
-    
-  };
+    let controller: DepartmentController;
+    const mockDepartmentService = {};
 
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      controllers: [DepartmentController],
-      providers: [DepartmentService],
-    }).overrideProvider(DepartmentService).useValue(mockDepartmentService).compile();
+    beforeEach(async () => {
+        const module: TestingModule = await Test.createTestingModule({
+            controllers: [DepartmentController],
+            providers: [DepartmentService],
+        })
+            .overrideProvider(DepartmentService)
+            .useValue(mockDepartmentService)
+            .compile();
 
-    controller = module.get<DepartmentController>(DepartmentController);
-  });
+        controller = module.get<DepartmentController>(DepartmentController);
+    });
 
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
-  });
+    it('should be defined', () => {
+        expect(controller).toBeDefined();
+    });
 
-  // it should get all departments by manager id (NEED TO IMPLEMENT)
+    // it should get all departments by manager id (NEED TO IMPLEMENT)
 });

@@ -3,10 +3,10 @@ import { DepartmentService } from './department.service';
 
 @Controller('departments')
 export class DepartmentController {
-    constructor(private readonly departmentService: DepartmentService){}
+    constructor(private readonly departmentService: DepartmentService) {}
 
     @Get('/:id')
-    getDepartments(@Param('id') id: string){
+    getDepartments(@Param('id') id: string) {
         return this.departmentService.getDepartmentsById(id);
     }
 }
