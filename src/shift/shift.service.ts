@@ -12,8 +12,7 @@ import moment = require('moment');
 export class ShiftService {
     constructor(@InjectClient() private readonly cnn: Client){}
 
-    async getShiftsById(departmentsId: string[]){
-        console.log('in getshiftByID')
+    async getShiftsById(departmentsId: string[], date: string=moment().format('YYYY-MM-DD')){
         const result: Promise<ShiftforDashboardDto[]> = Promise.all(departmentsId.map(async (departmentId: string)=>{
 
             const query: string = `select shift_code from _controls where department_id='${departmentId}'`;
@@ -21,8 +20,7 @@ export class ShiftService {
             const shiftInDepartment: ShiftforDashboardDto = await this.cnn.query(query)
 
             .then(async (res: dbResponse) => {
-                console.log(await this.getshifts(res.rows).then((res)=>(res)));
-                return await this.getshifts(res.rows).then((res)=>(res));
+                return await this.getshifts(res.rows, date).then((res)=>(res));
             })
             .catch((error) => {
                 console.error(error);
@@ -31,17 +29,16 @@ export class ShiftService {
             return shiftInDepartment;
         }));
         
-        console.log(await result);
         return await result;
     }
 
-    public async getshifts(shiftInDepartment: ShiftInDepartmentDto[]) {
+    public async getshifts(shiftInDepartment: ShiftInDepartmentDto[], date: string) {
         const data: Promise<ShiftforDashboardDto[]> = Promise.all(shiftInDepartment.map(async (obj: ShiftInDepartmentDto) => {
-        // return Promise.all(shiftInDepartment.map(async (obj: ShiftInDepartmentDto) => {
             const query = `
                             SELECT *
                             FROM shifts 
                             WHERE shift_code='${+obj.shift_code}'
+                            AND date='${date}'
                         `
             const shift =  await this.cnn.query(query)
                 .then((res: dbResponse) => {
@@ -49,14 +46,18 @@ export class ShiftService {
                     return res.rows.pop();
                 })
                 .then((shift: ShiftforDashboardAttrDto) => {
+                    const prediction =  (remain_time:number,remain_target:number,performance:number)=>{
+                        performance*remain_time >= remain_target? 'ทันเวลา': "ไม่ทันเวลา"
+                    }
+                    // const remain_time = 
                     const res: ShiftforDashboardDto = {
                         shiftCode: shift.shift_code,
-                        shiftDate: moment(shift.date).format('DD/MM/YYYY'),
+                        shiftDate: moment(shift.date).format('YYYY/MM/DD'),
                         shiftTime: shift.shift_time,
                         successProduct: shift.success_product,
                         allMember: shift.all_member,
                         checkInMember: shift.checkin_member,
-                        idealPerformance: shift.ideal_performance
+                        idealPerformance: shift.ideal_performance,
                     }
 
                     return res;
@@ -83,10 +84,8 @@ export class ShiftService {
             FROM shifts 
             WHERE shift_code='${shiftCode}';
         `;
-        // console.log('shift_code: ', shiftCode)
         const requestWithWorkTime: {shift_time: string} = await this.cnn.query(query)
             .then((res: dbResponse)=>{
-                // console.log('shift',res.rows)
                 return res.rows.pop();
             })
             .catch(e=>{

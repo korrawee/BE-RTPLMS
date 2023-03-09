@@ -5,8 +5,8 @@ import { ShiftService } from './shift.service';
 export class ShiftController {
     constructor(private readonly shiftService: ShiftService){}
 
-    @Get('/departments/:id')
-    getshift(@Param('id') id: string){
-        return this.shiftService.getShiftsById([id]);
+    @Get('/departments/:id/:date')
+    getshift(@Param('id') id: string, @Param('date') date: string){
+        return this.shiftService.getShiftsById([id],date);
     }
 }
