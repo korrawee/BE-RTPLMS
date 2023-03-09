@@ -17,6 +17,8 @@ import { ControlModule } from './relations/control/control.module';
 import { KafkaModule } from './kafka/kafka.module';
 import { DepartmentModule } from './department/department.module';
 import { DashboardModule } from './screens/dashboard/dashboard.module';
+import { EventsGateway } from './events/events.gateway';
+import { EventsModule } from './events/events.module';
 
 @Module({
     imports: [
@@ -56,6 +58,7 @@ import { DashboardModule } from './screens/dashboard/dashboard.module';
         LoginModule,
         ControlModule,
         KafkaModule,
+        EventsModule,
     ],
     controllers: [AppController],
     providers: [AppService],
