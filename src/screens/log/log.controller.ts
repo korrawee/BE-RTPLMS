@@ -6,7 +6,10 @@ export class LogScreenController {
     constructor(private readonly logService: LogSrceenService) {}
 
     @Get('managers/:mngId/:date')
-    public getDataForLogScreen(@Param('mngId') mngId: string, @Param('date') date: string){
+    public getDataForLogScreen(
+        @Param('mngId') mngId: string,
+        @Param('date') date: string
+    ) {
         return this.logService.getDataForLogScreen(mngId, date);
     }
 }

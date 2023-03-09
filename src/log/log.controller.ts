@@ -3,10 +3,13 @@ import { LogService } from './log.service';
 
 @Controller('logs')
 export class LogController {
-    constructor(private readonly logService: LogService){}
+    constructor(private readonly logService: LogService) {}
 
     @Get('managers/:mngId/:date')
-    public getAllByIdAndDate(@Param('mngId') mngId: string, @Param('date') date: string) {
+    public getAllByIdAndDate(
+        @Param('mngId') mngId: string,
+        @Param('date') date: string
+    ) {
         return this.logService.getAllByIdAndDate(mngId, date);
     }
     @Delete(':logId')

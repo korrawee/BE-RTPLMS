@@ -1,20 +1,22 @@
-import { BadGatewayException, BadRequestException, Injectable } from '@nestjs/common';
-import { isEmpty, isNumber } from 'class-validator';
+import {
+    BadGatewayException,
+    BadRequestException,
+    Injectable,
+} from '@nestjs/common';
+import { isNumber } from 'class-validator';
 import { InjectClient } from 'nest-postgres';
 import { Client } from 'pg';
-import { dbResponse } from 'src/db/db.response.type';
-import { DepartmentforDashboardDto } from 'src/department/dto/DepartmentforDashboard.dto';
-import { ControlService } from 'src/relations/control/control.service';
+import { dbResponse } from '../db/db.response.type';
 import { CreateLogDto } from './dto/CreateLog.dto';
 import { LogDto } from './dto/Log.dto';
 
 @Injectable()
 export class LogService {
-    constructor( 
-        @InjectClient() private readonly cnn: Client){}
+    constructor(@InjectClient() private readonly cnn: Client) {}
 
-    public async getAllByIdAndDate(mngId: string, date: string){
-        if(!isNumber(parseInt(mngId))) throw new BadRequestException('Invalid manager id');
+    public async getAllByIdAndDate(mngId: string, date: string) {
+        if (!isNumber(parseInt(mngId)))
+            throw new BadRequestException('manager id must be an integer');
         const query = `
             SELECT * 
             FROM logs 
@@ -22,72 +24,71 @@ export class LogService {
             HAVING cast(create_at AS date)='${date}' AND mng_id='${mngId}';
         `;
 
-        let logs: LogDto[] = await this.cnn.query(query)
-            .then((res: dbResponse)=>{
+        let logs: LogDto[] = await this.cnn
+            .query(query)
+            .then((res: dbResponse) => {
                 return res.rows;
             })
-            .catch(e=>{
-                console.log(e);
+            .catch((e) => {
                 throw new BadGatewayException('Invalid Input Data');
-            }) 
+            });
 
         return logs;
     }
 
-    public async createLog(body: CreateLogDto){
+    public async createLog(body: CreateLogDto) {
         // Convert body object to string of column names and values
         const columns = Object.keys(body).toString();
-        const values = Object.values(body)
+        const values = Object.values(body);
         const valuesLastIndex = values.length - 1;
-            
-        const queryValues = values.reduce((str, v, currentIndex)=>{
+
+        const queryValues = values.reduce((str, v, currentIndex) => {
             let value: string;
-            if(typeof(v) === 'object'){
+            if (typeof v === 'object') {
                 value = `'${JSON.stringify(v)}'`;
-            }else{
+            } else {
                 value = `'${v}'`;
             }
-            return str + ((currentIndex == valuesLastIndex) ? value:(value + ','));
-        },''); 
-        console.log(columns);
-        console.log(values);
-        console.log(queryValues);
+            return (
+                str + (currentIndex == valuesLastIndex ? value : value + ',')
+            );
+        }, '');
+
         const query = `
             INSERT INTO logs(${columns}) 
             VALUES(${queryValues});
         `;
 
-        const logs: LogDto[] = await this.cnn.query(query)
-            .then((res: dbResponse)=>{
+        const logs: LogDto[] = await this.cnn
+            .query(query)
+            .then((res: dbResponse) => {
                 return res.rows;
             })
-            .catch(e=>{
-                console.log(e);
+            .catch((e) => {
                 throw new BadGatewayException('Invalid Input Data');
-            }) 
+            });
 
         return logs;
     }
 
-    public async deleteLogById(logId: string){
-
-        if(!isNumber(parseInt(logId))) throw new BadRequestException('Invalid manager id');
-
+    public async deleteLogById(logId: string) {
+        if (!isNumber(parseInt(logId)))
+            throw new BadRequestException('Invalid manager id');
 
         const query = `
             DELETE FROM logs 
             WHERE log_id='${logId}';
         `;
-        
-        const res = await this.cnn.query(query)
-        .then((res: dbResponse)=>{
-            return {message:`Deleted log number ${logId}.`};
-        })
-        .catch(e=>{
-            console.log(e);
-            throw new BadGatewayException('Invalid Input Data');
-        }) 
 
-    return res;
+        const res = await this.cnn
+            .query(query)
+            .then((res: dbResponse) => {
+                return { message: `Deleted log number ${logId}.` };
+            })
+            .catch((e) => {
+                throw new BadGatewayException('Invalid Input Data');
+            });
+
+        return res;
     }
 }

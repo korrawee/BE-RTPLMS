@@ -3,10 +3,10 @@ import { DetailService } from './detail.service';
 
 @Controller('detail')
 export class DetailController {
-    constructor(private readonly detailService: DetailService){}
+    constructor(private readonly detailService: DetailService) {}
 
     @Get('/shift/:shift_code')
-    public async getData(@Param('shift_code') shiftCode: string){
+    public async getData(@Param('shift_code') shiftCode: string) {
         const res = await this.detailService.getData(shiftCode);
         return res;
     }

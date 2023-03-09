@@ -1,13 +1,13 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectClient } from 'nest-postgres';
 import { Client } from 'pg';
-import { DepartmentforDashboardDto } from 'src/department/dto/DepartmentforDashboard.dto';
+import { DepartmentforDashboardDto } from '../../department/dto/DepartmentforDashboard.dto';
 
 @Injectable()
 export class ControlService {
-    constructor(@InjectClient() private readonly cnn: Client){}
+    constructor(@InjectClient() private readonly cnn: Client) {}
 
-    async getDepartmentInfoByShiftId(shiftCode: string){
+    async getDepartmentInfoByShiftId(shiftCode: string) {
         const query = `
             SELECT *
             FROM _controls AS c
@@ -16,13 +16,13 @@ export class ControlService {
             WHERE shift_code='${shiftCode}'
         ;`;
 
-        const department: DepartmentforDashboardDto = await this.cnn.query(query)
-            .then(res=>(res.rows.pop()))
-            .catch(e=>{
-                console.log(e);
-                throw new BadRequestException(e)
+        const department: DepartmentforDashboardDto = await this.cnn
+            .query(query)
+            .then((res) => res.rows.pop())
+            .catch((e) => {
+                throw new BadRequestException(e);
             });
-        
+
         return department;
-    } 
+    }
 }

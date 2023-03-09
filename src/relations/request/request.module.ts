@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { AccountModule } from 'src/account/account.module';
-import { LogModule } from 'src/log/log.module';
+import { AccountModule } from '../../account/account.module';
+import { LogModule } from '../../log/log.module';
 import { ControlModule } from '../control/control.module';
 import { WorkOnModule } from '../work-on/work-on.module';
 import { RequestController } from './request.controller';

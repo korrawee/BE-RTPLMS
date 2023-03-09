@@ -1,4 +1,4 @@
-export class LogDto{
+export class LogDto {
     log_id: string;
     action: string;
     details: string;

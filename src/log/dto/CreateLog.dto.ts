@@ -1,4 +1,4 @@
-import { DetailsDto } from "./Details.dto";
+import { DetailsDto } from './Details.dto';
 
 export class CreateLogDto {
     mng_id: string;

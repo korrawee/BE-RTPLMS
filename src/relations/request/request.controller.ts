@@ -1,4 +1,14 @@
-import { Body, Controller, Delete, Get, Patch, Injectable, Param, Post, Query } from '@nestjs/common';
+import {
+    Body,
+    Controller,
+    Delete,
+    Get,
+    Patch,
+    Injectable,
+    Param,
+    Post,
+    Query,
+} from '@nestjs/common';
 import { CreateOtRequestDto } from './dto/CreateOtRequest.dto';
 import { DeleteOtRequest } from './dto/DeleteOtRequest.dto';
 import { UpdateOtRequestDto } from './dto/UpdateOtRequest.dto';
@@ -7,15 +17,21 @@ import { RequestService } from './request.service';
 @Injectable()
 @Controller('request')
 export class RequestController {
-    constructor(private readonly reqService: RequestService){}
+    constructor(private readonly reqService: RequestService) {}
 
     @Get('/shifts/:shiftCode')
-    public async getAllRequest(@Param('shiftCode') shiftCode: string, @Query('date') date: string){
-        return await this.reqService.getAllRequestByShiftAndDate(shiftCode, date);
+    public async getAllRequest(
+        @Param('shiftCode') shiftCode: string,
+        @Query('date') date: string
+    ) {
+        return await this.reqService.getAllRequestByShiftAndDate(
+            shiftCode,
+            date
+        );
     }
 
     @Post()
-    public async createOtRequest(@Body() body: CreateOtRequestDto){
+    public async createOtRequest(@Body() body: CreateOtRequestDto) {
         return await this.reqService.createOtRequest(body);
     }
 
@@ -25,8 +41,9 @@ export class RequestController {
     }
 
     @Patch()
-    public async updateRequestByShiftCodeAndAccountId(@Body() body: UpdateOtRequestDto){
-        return await this.reqService.updateRequestByShiftCodeAndAccountId(body)
+    public async updateRequestByShiftCodeAndAccountId(
+        @Body() body: UpdateOtRequestDto
+    ) {
+        return await this.reqService.updateRequestByShiftCodeAndAccountId(body);
     }
-
 }

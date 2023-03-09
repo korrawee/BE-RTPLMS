@@ -1,24 +1,24 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectClient } from 'nest-postgres';
 import { Client } from 'pg';
-import { dbResponse } from 'src/db/db.response.type';
+import { dbResponse } from '../../db/db.response.type';
 import { WorkOnPostDeleteDto } from './dto/WorkOnPostDeleteDto';
 import { WorkOnDto } from './dto/WorkOn.dto';
-import { FilteredAccountDto } from 'src/relations/work-on/dto/FilteredAccount.dto';
-import { CreateLogDto } from 'src/log/dto/CreateLog.dto';
-import { DepartmentforDashboardDto } from 'src/department/dto/DepartmentforDashboard.dto';
+import { FilteredAccountDto } from '../../relations/work-on/dto/FilteredAccount.dto';
+import { CreateLogDto } from '../../log/dto/CreateLog.dto';
+import { DepartmentforDashboardDto } from '../../department/dto/DepartmentforDashboard.dto';
 import { ControlService } from '../control/control.service';
-import { LogService } from 'src/log/log.service';
-import { DetailsDto } from 'src/log/dto/Details.dto';
+import { LogService } from '../../log/log.service';
+import { DetailsDto } from '../../log/dto/Details.dto';
 @Injectable()
 export class WorkOnService {
     constructor(
         @InjectClient() private readonly cnn: Client,
         private readonly controlService: ControlService,
-        private readonly logService: LogService,
-    ){}
+        private readonly logService: LogService
+    ) {}
 
-    public async findAllByShiftId(shiftCode: string){
+    public async findAllByShiftId(shiftCode: string) {
         const query = `
             SELECT * , 
             CASE
@@ -30,20 +30,22 @@ export class WorkOnService {
             FROM work_on WHERE shift_code='${shiftCode}'
             ORDER BY cast(account_id AS int);
         `;
-        const allWorkOnThisShift: WorkOnDto[] = await this.cnn.query(query)
+        const allWorkOnThisShift: WorkOnDto[] = await this.cnn
+            .query(query)
             .then((res: dbResponse) => {
-
                 return res.rows;
             })
-            .catch((e)=>{
-                console.log(e);
+            .catch((e) => {
                 throw new BadRequestException('Invalid input data');
             });
-    ; 
         return allWorkOnThisShift;
     }
 
-    public async getFreeWorker(mng_id: string, shiftCode: string, date: string) {
+    public async getFreeWorker(
+        mng_id: string,
+        shiftCode: string,
+        date: string
+    ) {
         // Only return worker on given shift
         const query = `
             WITH
@@ -56,15 +58,15 @@ export class WorkOnService {
             SELECT worker_of_mng.account_id, worker_of_mng.fullname, worker_of_mng.performance 
             FROM worker_of_mng 
             WHERE worker_of_mng.account_id IN (SELECT account_id from worker_in_shift);
-        `
-        const freeWorkers = this.cnn.query(query)
-        .then((res: dbResponse) => {
-            return res.rows;
-        })
-        .catch((e)=>{
-            console.log(e);
-            throw new BadRequestException('Invalid input data');
-        });
+        `;
+        const freeWorkers = this.cnn
+            .query(query)
+            .then((res: dbResponse) => {
+                return res.rows;
+            })
+            .catch((e) => {
+                throw new BadRequestException('Invalid input data');
+            });
 
         return freeWorkers;
     }
@@ -74,117 +76,134 @@ export class WorkOnService {
             WHERE shift_code='${shiftCode}' AND date='${date}';
         `;
 
-        const data = this.cnn.query(query)
-        .then((res: dbResponse)=>{
-            return res.rows;
-        })
-        .catch((e)=>{
-            console.log(e);
-            throw new BadRequestException('Invalid input data');
-        });
+        const data = this.cnn
+            .query(query)
+            .then((res: dbResponse) => {
+                return res.rows;
+            })
+            .catch((e) => {
+                throw new BadRequestException('Invalid input data');
+            });
 
         return data;
     }
 
     /* Add worker to shifts */
-    public async createWorkOn(body: WorkOnPostDeleteDto){
-        const values = body.accountIds.reduce((str: string, accId:string, currentIndex: number)=>{
-            return str + (currentIndex == body.accountIds.length-1 ? `('${accId}', '${body.shiftCode}', '${body.date}');` : `('${accId}', '${body.shiftCode}', '${body.date}'),`)    
-        },'');
+    public async createWorkOn(body: WorkOnPostDeleteDto) {
+        const values = body.accountIds.reduce(
+            (str: string, accId: string, currentIndex: number) => {
+                return (
+                    str +
+                    (currentIndex == body.accountIds.length - 1
+                        ? `('${accId}', '${body.shiftCode}', '${body.date}');`
+                        : `('${accId}', '${body.shiftCode}', '${body.date}'),`)
+                );
+            },
+            ''
+        );
         const query = `INSERT INTO work_on(
             account_id, shift_code, date
             )
             VALUES${values}; 
             `;
-        const res = await this.cnn.query(query)
-            .then((res: dbResponse)=>{
-                console.log("Insert work_on successfully.")
-                return {status: 200, message: "Insert Successful..."};
-            })
-            .then(async ()=>{
-                /* Create log */
-                // ==================================================
-                // ==================================================
-                const department = await this.controlService.getDepartmentInfoByShiftId(body.shiftCode);
-                const logDetail: DetailsDto = {
-                    department: department.name,
-                    department_id: department.department_id,
-                    account_id: body.accountIds
-                }
-                const log: CreateLogDto = {
-                    mng_id: body.mngId,
-                    action: "Add Worker",
-                    details: logDetail
-                }
-                const createLog = await this.logService.createLog(log)
-                // ==================================================
-                // ==================================================
-                    
-            })
-            .catch(e=>{
-                console.log(e);
-                throw new BadRequestException('Invalid input data');
-            });
-        return res;
-    }
-
-    public async deleteWorkOn(body: WorkOnPostDeleteDto){
-        const values = body.accountIds.reduce((str, accId, currentIndex)=>{
-            return str + (currentIndex == body.accountIds.length-1 ?  `'${accId}'`:`'${accId}',`);
-        },'');
-    
-        const query = `DELETE FROM work_on 
-            WHERE account_id IN (${values}) AND shift_code='${body.shiftCode}';
-        ;`;
-        const res = await this.cnn.query(query)
-            .then((res: dbResponse)=>{
-                return {status: 200, message: "Delete Successful..."};
+        const res = await this.cnn
+            .query(query)
+            .then((res: dbResponse) => {
+                return { status: 200, message: 'Insert Successful...' };
             })
             .then(async () => {
                 /* Create log */
                 // ==================================================
                 // ==================================================
-                const department: DepartmentforDashboardDto = await this.controlService.getDepartmentInfoByShiftId(body.shiftCode);
+                const department =
+                    await this.controlService.getDepartmentInfoByShiftId(
+                        body.shiftCode
+                    );
                 const logDetail: DetailsDto = {
                     department: department.name,
                     department_id: department.department_id,
-                    account_id: body.accountIds
-                }
+                    account_id: body.accountIds,
+                };
                 const log: CreateLogDto = {
                     mng_id: body.mngId,
-                    action: "Delete Worker",
-                    details: logDetail
-                }
-
-                const createLog = await this.logService.createLog(log)
+                    action: 'Add Worker',
+                    details: logDetail,
+                };
+                const createLog = await this.logService.createLog(log);
                 // ==================================================
                 // ==================================================
             })
-            .catch(e=>{
-                console.log(e);
+            .catch((e) => {
                 throw new BadRequestException('Invalid input data');
             });
-
+        return res;
     }
 
-    public async getAccountIdSortByCheckIn(shiftId: string, quantity: number): Promise<FilteredAccountDto[]> {
+    public async deleteWorkOn(body: WorkOnPostDeleteDto) {
+        const values = body.accountIds.reduce((str, accId, currentIndex) => {
+            return (
+                str +
+                (currentIndex == body.accountIds.length - 1
+                    ? `'${accId}'`
+                    : `'${accId}',`)
+            );
+        }, '');
 
+        const query = `DELETE FROM work_on 
+            WHERE account_id IN (${values}) AND shift_code='${body.shiftCode}';
+        ;`;
+        const res = await this.cnn
+            .query(query)
+            .then((res: dbResponse) => {
+                return { status: 200, message: 'Delete Successful...' };
+            })
+            .then(async () => {
+                /* Create log */
+                // ==================================================
+                // ==================================================
+                const department: DepartmentforDashboardDto =
+                    await this.controlService.getDepartmentInfoByShiftId(
+                        body.shiftCode
+                    );
+                const logDetail: DetailsDto = {
+                    department: department.name,
+                    department_id: department.department_id,
+                    account_id: body.accountIds,
+                };
+                const log: CreateLogDto = {
+                    mng_id: body.mngId,
+                    action: 'Delete Worker',
+                    details: logDetail,
+                };
+
+                const createLog = await this.logService.createLog(log);
+                // ==================================================
+                // ==================================================
+            })
+            .catch((e) => {
+                throw new BadRequestException('Invalid input data');
+            });
+    }
+
+    public async getAccountIdSortByCheckIn(
+        shiftId: string,
+        quantity: number
+    ): Promise<FilteredAccountDto[]> {
         const query = `SELECT account_id from work_on 
             WHERE shift_code='${shiftId}' 
             ORDER BY checkin_time
             LIMIT ${quantity};`;
-        
-        
-        const queryData: Promise<FilteredAccountDto[]> = await this.cnn.query(query)
-            .then((res: dbResponse)=>{
+
+        const queryData: Promise<FilteredAccountDto[]> = await this.cnn
+            .query(query)
+            .then((res: dbResponse) => {
                 const data: FilteredAccountDto[] = res.rows;
                 return data;
             })
-            .catch((e)=>{
-                console.log(e);
+            .catch((e) => {
                 return new BadRequestException('Invalid data input');
             });
-            
+
         return queryData;
     }
 }

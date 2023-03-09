@@ -1,4 +1,4 @@
-export class WorkOnDto{
+export class WorkOnDto {
     account_id: string;
     shift_code: string;
     checkin_time: string;

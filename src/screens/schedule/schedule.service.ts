@@ -1,18 +1,19 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { Client } from 'pg';
 import { InjectClient } from 'nest-postgres';
-import { dbResponse } from 'src/db/db.response.type';
-import { isNumber } from 'class-validator';
+import { dbResponse } from '../../db/db.response.type';
 import { WorkPlanSchedule } from './dto/WorkPlanSchedule.dto';
 import { OtPlanSchedule } from './dto/OtPlanSchedule.dto';
 
 @Injectable()
 export class ScheduleService {
-    constructor(@InjectClient() private readonly cnn: Client){}
+    constructor(@InjectClient() private readonly cnn: Client) {}
 
-    async getScheduleByAccountId(accId : string){
+    async getScheduleByAccountId(accId: string) {
+        // Is account id a integer
 
-        if(!isNumber(parseInt(accId))) throw new BadRequestException('Invalid account id.')
+        if (!Number.isInteger(parseInt(accId)))
+            throw new BadRequestException('Invalid account id.');
 
         const query = `
             WITH
@@ -52,20 +53,23 @@ export class ScheduleService {
             ON a.account_id=prev.account_id;
         `;
 
-        const workPlanSchedule: WorkPlanSchedule[] = await this.cnn.query(query)
+        const workPlanSchedule: WorkPlanSchedule[] = await this.cnn
+            .query(query)
             .then((res: dbResponse) => {
                 return res.rows;
             })
-            .catch((e)=>{
-                console.log(e);
-                throw new BadRequestException('Invalid input data');
+            .catch((e) => {
+                throw new BadRequestException(e.message);
             });
-
 
         return workPlanSchedule;
     }
 
     async getOtScheduleByAccountId(accId: string) {
+        // Is account id a integer
+        if (!Number.isInteger(parseInt(accId)))
+            throw new BadRequestException('Invalid account id.');
+
         const query = `
             WITH
             r as (
@@ -94,13 +98,13 @@ export class ScheduleService {
             SELECT prev.date, prev.shift_time, prev.number_of_hour, prev.req_status, prev.create_at, prev.department_name
             FROM to_d AS prev;
         `;
-        const otSchedule:  OtPlanSchedule = await this.cnn.query(query)
+        const otSchedule: OtPlanSchedule = await this.cnn
+            .query(query)
             .then((res: dbResponse) => {
                 return res.rows;
             })
-            .catch(e=>{
-                console.log(e);
-                throw new BadRequestException('Invalid input data');
+            .catch((e) => {
+                throw new BadRequestException(e.message);
             });
         return otSchedule;
     }

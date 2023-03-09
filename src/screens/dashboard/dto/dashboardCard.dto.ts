@@ -1,5 +1,5 @@
-import { DepartmentforDashboardDto } from "src/department/dto/DepartmentforDashboard.dto";
-import { ShiftforDashboardDto } from "src/shift/dto/ShiftForDashboard.dto";
+import { DepartmentforDashboardDto } from 'src/department/dto/DepartmentforDashboard.dto';
+import { ShiftforDashboardDto } from 'src/shift/dto/ShiftForDashboard.dto';
 // Dashboard APIs
 
 // Requirements

@@ -1,4 +1,4 @@
-export class PersonDetailDto{
+export class PersonDetailDto {
     id: string;
     name: string;
     performance: number;
