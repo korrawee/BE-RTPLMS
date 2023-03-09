@@ -8,9 +8,11 @@ import { InjectClient } from 'nest-postgres';
 import { UpdateShiftDto } from './dto/UpdateShift.dto';
 import { ShiftDto } from './dto/Shift.dto';
 import moment = require('moment');
+import { Server } from 'socket.io';
 
 @Injectable()
 export class ShiftService {
+    socketServer: Server;
     constructor(@InjectClient() private readonly cnn: Client) {}
 
     async getShiftsById(
@@ -166,12 +168,18 @@ export class ShiftService {
         const shift = await this.cnn
             .query(query)
             .then((res: dbResponse) => {
-                return res.rows.pop();
+                const shift: ShiftDto = res.rows.pop();
+                this.sendNoticeToClient(shift.shift_code);
+                return shift;
             })
             .catch((e) => {
                 throw new BadRequestException('Invalid input Data');
             });
 
         return shift;
+    }
+
+    private sendNoticeToClient(target: string) {
+        this.socketServer.emit(target, { isUpdate: true, messsage: `Please update shift ${target}` });
     }
 }
