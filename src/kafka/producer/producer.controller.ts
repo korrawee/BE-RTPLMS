@@ -4,11 +4,10 @@ import { ProducerService } from './producer.service';
 
 @Controller('produce')
 export class ProducerController {
-    constructor(private readonly producerService: ProducerService){}
+    constructor(private readonly producerService: ProducerService) {}
 
     @Post()
-    async publishData(@Body() body: ProducerRecord){
+    async publishData(@Body() body: ProducerRecord) {
         return await this.producerService.produce(body);
     }
-    
 }

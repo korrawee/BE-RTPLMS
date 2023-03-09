@@ -7,6 +7,6 @@ import { ProducerController } from './producer.controller';
     imports: [ConfigModule],
     providers: [ProducerService],
     exports: [ProducerService],
-    controllers: [ProducerController]
+    controllers: [ProducerController],
 })
 export class ProducerModule {}

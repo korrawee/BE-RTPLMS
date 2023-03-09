@@ -6,8 +6,8 @@ import { ProducerModule } from './producer/producer.module';
 import { AdminModule } from './admin/admin.module';
 
 @Module({
-  imports: [ConsumerModule, ProducerModule, AdminModule],
-  providers: [ProducerService, ConsumerService],
-  exports: [ProducerService, ConsumerService]
+    imports: [ConsumerModule, ProducerModule, AdminModule],
+    providers: [ProducerService, ConsumerService],
+    exports: [ProducerService, ConsumerService],
 })
 export class KafkaModule {}
