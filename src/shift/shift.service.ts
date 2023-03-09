@@ -13,77 +13,68 @@ import moment = require('moment');
 export class ShiftService {
     constructor(@InjectClient() private readonly cnn: Client) {}
 
-    async getShiftsById(
-        departmentsId: string[],
-        date = moment().format('YYYY-MM-DD')
-    ) {
-        const result: Promise<ShiftforDashboardDto[]> = Promise.all(
-            departmentsId.map(async (departmentId: string) => {
-                const query: string = `
+    async getShiftsById(departmentsId: string[], date: string=moment().format('YYYY-MM-DD')){
+        const result: Promise<ShiftforDashboardDto[]> = Promise.all(departmentsId.map(async (departmentId: string)=>{
+
+            const query: string = `
                 SELECT shift_code 
                 FROM _controls 
                 WHERE department_id='${departmentId}';
             `;
 
-                const shiftInDepartment: ShiftforDashboardDto = await this.cnn
-                    .query(query)
-                    .then(async (res: dbResponse) => {
-                        return await this.getshifts(res.rows, date).then(
-                            (res) => res
-                        );
-                    })
-                    .catch((error) => {
-                        console.error(error);
-                        throw new BadRequestException('Invalid input data');
-                    });
-                return shiftInDepartment;
-            })
-        );
+            const shiftInDepartment: ShiftforDashboardDto = await this.cnn.query(query)
 
-        //
+            .then(async (res: dbResponse) => {
+                return await this.getshifts(res.rows, date).then((res)=>(res));
+            })
+            .catch((error) => {
+                console.error(error);
+                throw new BadRequestException('Invalid input data');
+            });
+            return shiftInDepartment;
+        }));
+        
         return await result;
     }
 
-    public async getshifts(
-        shiftInDepartment: ShiftInDepartmentDto[],
-        date: string
-    ) {
-        const data: Promise<ShiftforDashboardDto[]> = Promise.all(
-            shiftInDepartment.map(async (obj: ShiftInDepartmentDto) => {
-                // return Promise.all(shiftInDepartment.map(async (obj: ShiftInDepartmentDto) => {
-                const query = `
+    public async getshifts(shiftInDepartment: ShiftInDepartmentDto[], date: string) {
+        const data: Promise<ShiftforDashboardDto[]> = Promise.all(shiftInDepartment.map(async (obj: ShiftInDepartmentDto) => {
+            const query = `
                             SELECT *
                             FROM shifts 
                             WHERE shift_code='${+obj.shift_code}'
                             AND date='${date}'
-                        ;
-                        `;
-                const shift = await this.cnn
-                    .query(query)
-                    .then((res: dbResponse) => {
-                        return res.rows.pop();
-                    })
-                    .then((shift: ShiftforDashboardAttrDto) => {
-                        const res: ShiftforDashboardDto = {
-                            shiftCode: shift.shift_code,
-                            shiftDate: moment(shift.date).format('YYYY/MM/DD'),
-                            shiftTime: shift.shift_time,
-                            successProduct: shift.success_product,
-                            allMember: shift.all_member,
-                            checkInMember: shift.checkin_member,
-                            idealPerformance: shift.ideal_performance,
-                        };
+                        `
+            const shift =  await this.cnn.query(query)
+                .then((res: dbResponse) => {
+                    
+                    return res.rows.pop();
+                })
+                .then((shift: ShiftforDashboardAttrDto) => {
+                    const prediction =  (remain_time:number,remain_target:number,performance:number)=>{
+                        performance*remain_time >= remain_target? 'ทันเวลา': "ไม่ทันเวลา"
+                    }
+                    // const remain_time = 
+                    const res: ShiftforDashboardDto = {
+                        shiftCode: shift.shift_code,
+                        shiftDate: moment(shift.date).format('YYYY/MM/DD'),
+                        shiftTime: shift.shift_time,
+                        successProduct: shift.success_product,
+                        allMember: shift.all_member,
+                        checkInMember: shift.checkin_member,
+                        idealPerformance: shift.ideal_performance,
+                    }
 
-                        return res;
-                    })
-                    .catch((error) => {
-                        console.error(error);
-                        throw new BadRequestException('Invalid input data');
-                    });
+                    return res;
+                })
+                .catch((error) => {
 
-                return shift;
-            })
-        );
+                    console.error(error);
+                    throw new BadRequestException('Invalid input data');
+                });
+
+            return shift;
+        }))
         // .then(res=>{
 
         //     return res;
@@ -98,11 +89,8 @@ export class ShiftService {
             FROM shifts 
             WHERE shift_code='${shiftCode}';
         `;
-        //
-        const requestWithWorkTime: { shift_time: string } = await this.cnn
-            .query(query)
-            .then((res: dbResponse) => {
-                //
+        const requestWithWorkTime: {shift_time: string} = await this.cnn.query(query)
+            .then((res: dbResponse)=>{
                 return res.rows.pop();
             })
             .catch((e) => {
