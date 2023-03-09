@@ -1,6 +1,6 @@
 do $$
 declare
-    index integer := 2;
+    index integer := 1;
 begin
     INSERT INTO accounts VALUES (
         '0',
