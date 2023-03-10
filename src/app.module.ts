@@ -13,11 +13,9 @@ import { ShiftModule } from './shift/shift.module';
 import { LogScreenModule } from './screens/log/log.module';
 import { LogModule } from './log/log.module';
 import { LoginModule } from './screens/login/login.module';
-import { ControlModule } from './relations/control/control.module';
 import { KafkaModule } from './kafka/kafka.module';
 import { DepartmentModule } from './department/department.module';
 import { DashboardModule } from './screens/dashboard/dashboard.module';
-import { EventsGateway } from './events/events.gateway';
 import { EventsModule } from './events/events.module';
 
 @Module({
@@ -56,7 +54,6 @@ import { EventsModule } from './events/events.module';
         LogModule,
         LogScreenModule,
         LoginModule,
-        ControlModule,
         KafkaModule,
         EventsModule,
     ],

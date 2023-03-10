@@ -23,7 +23,7 @@ export class ShiftService {
             departmentsId.map(async (departmentId: string) => {
                 const query: string = `
                 SELECT shift_code 
-                FROM _controls 
+                FROM shifts 
                 WHERE department_id='${departmentId}';
             `;
 
@@ -61,6 +61,7 @@ export class ShiftService {
                 const shift = await this.cnn
                     .query(query)
                     .then((res: dbResponse) => {
+                        if(res.rows.length == 0) throw new Error('No current shift.')
                         return res.rows.pop();
                     })
                     .then((shift: ShiftforDashboardAttrDto) => {
@@ -169,6 +170,7 @@ export class ShiftService {
             .query(query)
             .then((res: dbResponse) => {
                 const shift: ShiftDto = res.rows.pop();
+                // send noti. to frontend
                 this.sendNoticeToClient(shift.shift_code);
                 return shift;
             })

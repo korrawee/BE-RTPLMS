@@ -30,13 +30,15 @@ begin
         index := index + 1;
     END LOOP;
 
-    INSERT INTO departments VALUES ('1', 'Boiling', '0');
-    INSERT INTO departments VALUES ('2', 'Packing', '0');
-    INSERT INTO departments VALUES ('3', 'Logistic', '0');
-    INSERT INTO departments VALUES ('4', 'Stock', '0');
-    INSERT INTO departments VALUES ('5', 'Boiling 2', '0');
-    INSERT INTO departments VALUES ('6', 'Packing 2', '0');
-    INSERT INTO departments VALUES ('7', 'Logistic 2', '0');
+    INSERT INTO factories VALUES ('1', 'latprao', '0');
+
+    INSERT INTO departments VALUES ('1', 'Boiling', '0', '1');
+    INSERT INTO departments VALUES ('2', 'Packing', '0', '1');
+    INSERT INTO departments VALUES ('3', 'Logistic', '0', '1');
+    INSERT INTO departments VALUES ('4', 'Stock', '0', '1');
+    INSERT INTO departments VALUES ('5', 'Boiling 2', '0', '1');
+    INSERT INTO departments VALUES ('6', 'Packing 2', '0', '1');
+    INSERT INTO departments VALUES ('7', 'Logistic 2', '0', '1');
 
     index := 1;
     WHILE index <22 LOOP
@@ -48,24 +50,9 @@ begin
         400, 
         300, 
         30, 
-        15
+        15,
+        (index % 7) + 1
     );
-
-    IF index % 7 = 0 THEN
-        INSERT INTO _controls VALUES (index, 1);
-    ELSIF index % 7 = 1 THEN
-        INSERT INTO _controls VALUES (index, 2);
-    ELSIF index % 7 = 2 THEN
-        INSERT INTO _controls VALUES (index, 3);
-    ELSIF index % 7 = 3 THEN
-        INSERT INTO _controls VALUES (index, 4);
-    ELSIF index % 7 = 4 THEN
-        INSERT INTO _controls VALUES (index, 5);
-    ELSIF index % 7 = 5 THEN
-        INSERT INTO _controls VALUES (index, 6);
-    ELSEIF index % 7 = 6 THEN
-        INSERT INTO _controls VALUES (index, 7);
-    END IF;
 
         index := index + 1;
     END LOOP;

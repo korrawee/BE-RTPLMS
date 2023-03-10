@@ -16,6 +16,19 @@ CREATE TABLE accounts(
         mng_id text references accounts(account_id)
 );
 
+CREATE TABLE factories(
+        factory_id text primary key,
+        name text not null,
+        mng_id text references accounts(account_id)
+);
+
+CREATE TABLE departments(
+        department_id text primary key,
+        name text not null,
+        mng_id text references accounts(account_id),
+        factory_id text references factories(factory_id)
+);
+
 CREATE TABLE shifts(
         shift_code text primary key,
         date date not null,
@@ -24,20 +37,11 @@ CREATE TABLE shifts(
         success_product numeric default 0.0,
         ideal_performance numeric default 0.0,
         all_member integer,
-        checkin_member integer
+        checkin_member integer,
+        department_id text references departments(department_id)
 );
 
-CREATE TABLE departments(
-        department_id text primary key,
-        name text not null,
-        mng_id text references accounts(account_id)
-);
 
-CREATE TABLE factories(
-        factory_id text primary key,
-        name text not null,
-        mng_id text references accounts(account_id)
-);
 
 CREATE TABLE logs(
         log_id serial primary key,
@@ -45,16 +49,6 @@ CREATE TABLE logs(
         action text,
         details json,
         mng_id text references accounts(account_id)
-);
-
-CREATE TABLE _have(
-        factory_id text references factories(factory_id),
-        department_id text references departments(department_id)
-);
-
-CREATE TABLE _controls(
-        shift_code text references shifts(shift_code),
-        department_id text references departments(department_id)
 );
 
 CREATE TABLE work_on(
