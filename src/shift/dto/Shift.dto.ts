@@ -7,4 +7,5 @@ export class ShiftDto {
     ideal_performance: number;
     all_member: number;
     checkin_member: number;
+    department_id: string;
 }

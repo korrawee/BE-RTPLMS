@@ -15,7 +15,7 @@ export class DashboardService {
         @InjectClient() private readonly cnn: Client
     ) {}
 
-    public async getData(mngId: string, date: string) {
+    public async getData(mngId: string) {
         const departments: DepartmentforDashboardDto[] =
             await this.departmentService.getDepartmentsById(mngId);
         const departmentId: string[] = departments.map(
@@ -24,7 +24,7 @@ export class DashboardService {
             }
         );
         const shifts: ShiftforDashboardDto[] =
-            await this.shiftService.getShiftsById(departmentId, date);
+            await this.shiftService.getShiftsById(departmentId);
         const data: DashboardCardDto = {
             department: departments,
             shifts: shifts,

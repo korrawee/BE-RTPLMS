@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
+import { DepartmentModule } from 'src/department/department.module';
+import { ShiftModule } from 'src/shift/shift.module';
 import { LogModule } from '../../log/log.module';
-import { ControlModule } from '../control/control.module';
 import { WorkOnController } from './work-on.controller';
 import { WorkOnService } from './work-on.service';
 
 @Module({
-    imports: [ControlModule, LogModule],
+    imports: [LogModule, ShiftModule, DepartmentModule],
     controllers: [WorkOnController],
     providers: [WorkOnService],
     exports: [WorkOnService],

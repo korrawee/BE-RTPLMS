@@ -25,4 +25,23 @@ export class DepartmentService {
 
         return department;
     }
+
+    async getDepartmentById(departId: string) {
+        const query = `
+            SELECT *
+            FROM departments
+            WHERE department_id='${departId}'
+            ;
+        `
+        const department = await this.cnn.query(query)
+            .then((res: dbResponse) => {
+                return res.rows.pop();
+            })
+            .catch((error: any) => {
+                console.error(error);
+                throw new BadRequestException(error.message);
+            });
+    
+        return department;
+    }
 }

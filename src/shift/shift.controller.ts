@@ -6,9 +6,9 @@ import { ShiftService } from './shift.service';
 export class ShiftController {
     constructor(private readonly shiftService: ShiftService) {}
 
-    @Get('/departments/:id')
-    async getshift(@Param('id') id: string) {
-        return await this.shiftService.getShiftsById([id]);
+    @Get('/departments/:id/:date')
+    async getshift(@Param('id') id: string, @Param('date') date: string) {
+        return await this.shiftService.getShiftsById([id], date);
     }
 
     @Patch()

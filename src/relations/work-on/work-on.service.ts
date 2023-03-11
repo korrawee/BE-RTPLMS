@@ -7,14 +7,17 @@ import { WorkOnDto } from './dto/WorkOn.dto';
 import { FilteredAccountDto } from '../../relations/work-on/dto/FilteredAccount.dto';
 import { CreateLogDto } from '../../log/dto/CreateLog.dto';
 import { DepartmentforDashboardDto } from '../../department/dto/DepartmentforDashboard.dto';
-import { ControlService } from '../control/control.service';
 import { LogService } from '../../log/log.service';
 import { DetailsDto } from '../../log/dto/Details.dto';
+import { ShiftService } from 'src/shift/shift.service';
+import { DepartmentService } from 'src/department/department.service';
+import { ShiftDto } from 'src/shift/dto/Shift.dto';
 @Injectable()
 export class WorkOnService {
     constructor(
         @InjectClient() private readonly cnn: Client,
-        private readonly controlService: ControlService,
+        private readonly shiftService: ShiftService,
+        private readonly departmentService: DepartmentService,
         private readonly logService: LogService
     ) {}
 
@@ -116,20 +119,23 @@ export class WorkOnService {
                 /* Create log */
                 // ==================================================
                 // ==================================================
-                const department =
-                    await this.controlService.getDepartmentInfoByShiftId(
-                        body.shiftCode
-                    );
+                const shift: ShiftDto = await this.shiftService.getShiftById(
+                    body.shiftCode
+                );
+                const department: DepartmentforDashboardDto = await this.departmentService.getDepartmentById(shift.department_id);
+                    
                 const logDetail: DetailsDto = {
                     department: department.name,
                     department_id: department.department_id,
                     account_id: body.accountIds,
                 };
+
                 const log: CreateLogDto = {
                     mng_id: body.mngId,
-                    action: 'Add Worker',
+                    action: 'Add OT',
                     details: logDetail,
                 };
+
                 const createLog = await this.logService.createLog(log);
                 // ==================================================
                 // ==================================================
@@ -162,18 +168,20 @@ export class WorkOnService {
                 /* Create log */
                 // ==================================================
                 // ==================================================
-                const department: DepartmentforDashboardDto =
-                    await this.controlService.getDepartmentInfoByShiftId(
-                        body.shiftCode
-                    );
+                const shift: ShiftDto = await this.shiftService.getShiftById(
+                    body.shiftCode
+                );
+                const department: DepartmentforDashboardDto = await this.departmentService.getDepartmentById(shift.department_id);
+                    
                 const logDetail: DetailsDto = {
                     department: department.name,
                     department_id: department.department_id,
                     account_id: body.accountIds,
                 };
+
                 const log: CreateLogDto = {
                     mng_id: body.mngId,
-                    action: 'Delete Worker',
+                    action: 'Add OT',
                     details: logDetail,
                 };
 

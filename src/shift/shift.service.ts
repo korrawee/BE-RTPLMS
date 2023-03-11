@@ -1,4 +1,4 @@
-import { BadRequestException, ConsoleLogger, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { dbResponse } from '../db/db.response.type';
 import { ShiftforDashboardDto } from './dto/ShiftForDashboard.dto';
 import { ShiftforDashboardAttrDto } from './dto/ShiftForDashboardAttr.dto';
@@ -8,11 +8,9 @@ import { InjectClient } from 'nest-postgres';
 import { UpdateShiftDto } from './dto/UpdateShift.dto';
 import { ShiftDto } from './dto/Shift.dto';
 import moment = require('moment');
-import { Server } from 'socket.io';
 
 @Injectable()
 export class ShiftService {
-    socketServer: Server;
     constructor(@InjectClient() private readonly cnn: Client) {}
 
     async getShiftsById(
@@ -23,7 +21,7 @@ export class ShiftService {
             departmentsId.map(async (departmentId: string) => {
                 const query: string = `
                 SELECT shift_code 
-                FROM _controls 
+                FROM shifts 
                 WHERE department_id='${departmentId}';
             `;
 
@@ -61,6 +59,7 @@ export class ShiftService {
                 const shift = await this.cnn
                     .query(query)
                     .then((res: dbResponse) => {
+                        if(res.rows.length == 0) throw new Error('No current shift.')
                         return res.rows.pop();
                     })
                     .then((shift: ShiftforDashboardAttrDto) => {
@@ -169,7 +168,6 @@ export class ShiftService {
             .query(query)
             .then((res: dbResponse) => {
                 const shift: ShiftDto = res.rows.pop();
-                this.sendNoticeToClient(shift.shift_code);
                 return shift;
             })
             .catch((e) => {
@@ -179,7 +177,5 @@ export class ShiftService {
         return shift;
     }
 
-    private sendNoticeToClient(target: string) {
-        this.socketServer.emit(target, { isUpdate: true, messsage: `Please update shift ${target}` });
-    }
+    
 }
