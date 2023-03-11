@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import { ShiftModule } from '../shift/shift.module';
+import { ConsumerModule } from 'src/kafka/consumer/consumer.module';
 import { EventsGateway } from './events.gateway';
 
 @Module({
-    imports: [ShiftModule],
+    imports: [ConsumerModule],
     providers: [EventsGateway],
 })
 export class EventsModule {}

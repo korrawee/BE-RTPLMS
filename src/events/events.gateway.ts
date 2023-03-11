@@ -7,6 +7,7 @@ import {
     WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { ProductConsumer } from 'src/kafka/consumer/product.consumer';
 import { ShiftService } from '../shift/shift.service';
 
 @WebSocketGateway({
@@ -17,14 +18,14 @@ import { ShiftService } from '../shift/shift.service';
 export class EventsGateway
   implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit
 {
-  constructor(private readonly shiftService: ShiftService){}
+  constructor(private readonly productConsumer: ProductConsumer){}
   
   @WebSocketServer()
     private server: Server;
     private clients: Socket[] = [];
 
     afterInit() {
-      this.shiftService.socketServer = this.server;
+      this.productConsumer.socketServer = this.server;
     }
 
     handleConnection(client: Socket, ...args: any[]) {
