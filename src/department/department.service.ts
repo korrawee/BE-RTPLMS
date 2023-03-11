@@ -29,7 +29,7 @@ export class DepartmentService {
     async getDepartmentById(departId: string) {
         const query = `
             SELECT *
-            FROM departnents
+            FROM departments
             WHERE department_id='${departId}'
             ;
         `
