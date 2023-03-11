@@ -7,8 +7,8 @@ import {
     WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { AttendanceConsumer } from 'src/kafka/consumer/attendace.consumer';
 import { ProductConsumer } from 'src/kafka/consumer/product.consumer';
-import { ShiftService } from '../shift/shift.service';
 
 @WebSocketGateway({
     cors: {
@@ -16,16 +16,21 @@ import { ShiftService } from '../shift/shift.service';
     },
 })
 export class EventsGateway
-  implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit
+    implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit
 {
-  constructor(private readonly productConsumer: ProductConsumer){}
-  
-  @WebSocketServer()
+    constructor(
+        // Add new consumer here
+        private readonly productConsumer: ProductConsumer,
+        private readonly attendanceConsumer: AttendanceConsumer,
+    ) {}
+
+    @WebSocketServer()
     private server: Server;
     private clients: Socket[] = [];
 
     afterInit() {
-      this.productConsumer.socketServer = this.server;
+        this.productConsumer.socketServer = this.server;
+        this.attendanceConsumer.socketServer = this.server;
     }
 
     handleConnection(client: Socket, ...args: any[]) {

@@ -18,16 +18,19 @@ export class ConsumerService {
     });
 
     // Store available consumers
-    private consumer: Consumer;
+    private consumers: Consumer[];
 
-    async consume(topics: ConsumerSubscribeTopics, config: ConsumerRunConfig) {
-        this.consumer = this.kafka.consumer({ groupId: 'consumer-group' });
-        await this.consumer.connect();
-        await this.consumer.subscribe(topics);
-        await this.consumer.run(config);
+    async consume(topics: ConsumerSubscribeTopics, config: ConsumerRunConfig, groupId: string) {
+        const consumer: Consumer = this.kafka.consumer({ groupId: groupId });
+        await consumer.connect();
+        await consumer.subscribe({...topics, fromBeginning: true});
+        await consumer.run(config);
+        this.consumers?.push(consumer);
     }
 
     async onApplicationShutdown() {
-        await this.consumer?.disconnect();
+        for (const c of this.consumers) {
+            await c.disconnect();
+        }
     }
 }

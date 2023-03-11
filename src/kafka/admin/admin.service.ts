@@ -29,8 +29,22 @@ export class AdminService implements OnModuleInit {
         const topics: string[] = await this.admin.listTopics();
 
         const topicsSet = new Set(topics);
+        let myTopic: string;
 
-        const myTopic = this.configService.get<string>('UPDATE_PRODUCT_TOPIC');
+        myTopic = this.configService.get<string>('UPDATE_PRODUCT_TOPIC');
+        // Check if no myTopic in kafka server
+        if (!topicsSet.has(myTopic)) {
+            // Creates topic
+            await this.admin.createTopics({
+                topics: [
+                    {
+                        topic: myTopic,
+                    },
+                ],
+            });
+        }
+
+        myTopic = this.configService.get<string>('UPDATE_ATTENDANCE_TOPIC');
         // Check if no myTopic in kafka server
         if (!topicsSet.has(myTopic)) {
             // Creates topic

@@ -12,6 +12,7 @@ import { DetailsDto } from '../../log/dto/Details.dto';
 import { ShiftService } from 'src/shift/shift.service';
 import { DepartmentService } from 'src/department/department.service';
 import { ShiftDto } from 'src/shift/dto/Shift.dto';
+import { UpdateWorkOnDto } from './dto/UpdateWorkOn.dto';
 @Injectable()
 export class WorkOnService {
     constructor(
@@ -122,8 +123,11 @@ export class WorkOnService {
                 const shift: ShiftDto = await this.shiftService.getShiftById(
                     body.shiftCode
                 );
-                const department: DepartmentforDashboardDto = await this.departmentService.getDepartmentById(shift.department_id);
-                    
+                const department: DepartmentforDashboardDto =
+                    await this.departmentService.getDepartmentById(
+                        shift.department_id
+                    );
+
                 const logDetail: DetailsDto = {
                     department: department.name,
                     department_id: department.department_id,
@@ -171,8 +175,11 @@ export class WorkOnService {
                 const shift: ShiftDto = await this.shiftService.getShiftById(
                     body.shiftCode
                 );
-                const department: DepartmentforDashboardDto = await this.departmentService.getDepartmentById(shift.department_id);
-                    
+                const department: DepartmentforDashboardDto =
+                    await this.departmentService.getDepartmentById(
+                        shift.department_id
+                    );
+
                 const logDetail: DetailsDto = {
                     department: department.name,
                     department_id: department.department_id,
@@ -214,5 +221,35 @@ export class WorkOnService {
             });
 
         return queryData;
+    }
+
+    async update(body: UpdateWorkOnDto) {
+        const bodyArr = Object.entries(body);
+        const values = bodyArr.reduce((str, val, curIndex) => {
+            return (
+                str +
+                (curIndex == bodyArr.length - 1
+                    ? `${val[0]}='${val[1]}'`
+                    : `${val[0]}='${val[1]}',`)
+            );
+        }, '');
+        const query = `
+            UPDATE work_on
+            SET ${values}
+            WHERE account_id='${body.account_id}' 
+            AND shift_code='${body.shift_code}'
+            RETURNING *
+        ;`;
+        const workOn: WorkOnDto = await this.cnn
+            .query(query)
+            .then((res: dbResponse) => {
+                const data: WorkOnDto = res.rows.pop();
+                return data;
+            })
+            .catch((e) => {
+                return new BadRequestException(e.message);
+            });
+
+        return workOn;
     }
 }

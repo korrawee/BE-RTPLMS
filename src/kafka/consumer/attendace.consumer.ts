@@ -7,24 +7,34 @@ import { ConsumerService } from './consumer.service';
 import { Server } from 'socket.io';
 import { DepartmentService } from 'src/department/department.service';
 import { DepartmentforDashboardDto } from 'src/department/dto/DepartmentforDashboard.dto';
+import { WorkOnService } from 'src/relations/work-on/work-on.service';
+import { WorkOnDto } from 'src/relations/work-on/dto/WorkOn.dto';
+
+interface IUpdateAttendance {
+    account_id: string;
+    shift_code: string;
+    checkin_time?: string;
+    checkout_time?: string;
+}
 
 @Injectable()
-export class ProductConsumer implements OnModuleInit {
+export class AttendanceConsumer implements OnModuleInit {
     constructor(
         private readonly consumerService: ConsumerService,
         private readonly configService: ConfigService,
         private readonly shiftService: ShiftService,
         private readonly departmentService: DepartmentService,
+        private readonly workOnService: WorkOnService,
     ) {}
 
     socketServer: Server;
     
     async onModuleInit() {
-        console.log('init product consumer')
+        console.log('init attendance consumer')
         await this.consumerService.consume(
             {
                 topics: [
-                    this.configService.get<string>('UPDATE_PRODUCT_TOPIC'),
+                    this.configService.get<string>('UPDATE_ATTENDANCE_TOPIC'),
                 ],
             },
             {
@@ -33,35 +43,33 @@ export class ProductConsumer implements OnModuleInit {
                     await this.doUpdate(message);
                 },
             },
-            'consume-product'
+            'consume-attendance'
         );
     }
 
     async doUpdate(message: KafkaMessage) {
+        
         // Prep. data
-        const value: { shift_code: string; success_product: number } =
+        const payload: IUpdateAttendance =
             JSON.parse(message.value.toString());
-        const shift: ShiftDto = await this.shiftService.getShiftById(value.shift_code);
-        const updatedShift = { ...shift };
+        
+        // Update attendace
+        const workOn: WorkOnDto = await this.workOnService.update(payload);
 
-        // Update success_product
-        updatedShift.success_product =
-            +updatedShift.success_product + +value.success_product;
+        const shift: ShiftDto = await this.shiftService.getShiftById(workOn.shift_code);
 
-        // Update to database
-        await this.shiftService.updateShift(updatedShift);
-
+        const department: DepartmentforDashboardDto = await this.departmentService.getDepartmentById(shift.department_id);
+   
         // Notices to client
-        const department: DepartmentforDashboardDto = await this.departmentService.getDepartmentById(updatedShift.department_id)
         if(this.sendNoticeToClient(department.mng_id)){
-            console.log('Update consumed product successfully.');
+            console.log('Update consumed attendance successfully.');
         }else{
             console.log('Something wrong while sending notification to client.');
         }
     }
 
     private sendNoticeToClient(target: string) {
-        const topic = `${target}-product`;
+        const topic = `${target}-attendance`;
         return this.socketServer.emit(topic,{isUpdate: true});
     }
     
