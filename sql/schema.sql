@@ -10,7 +10,6 @@ CREATE TABLE accounts(
         password text,
         fullname text,
         role text not null,
-        telephone text,
         performance numeric not null,
         details json,
         mng_id text references accounts(account_id)
