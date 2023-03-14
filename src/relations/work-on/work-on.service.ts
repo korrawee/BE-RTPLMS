@@ -240,6 +240,7 @@ export class WorkOnService {
             AND shift_code='${body.shift_code}'
             RETURNING *
         ;`;
+        console.log(query)
         const workOn: WorkOnDto = await this.cnn
             .query(query)
             .then((res: dbResponse) => {
@@ -251,5 +252,24 @@ export class WorkOnService {
             });
 
         return workOn;
+    }
+    async getOneWorkOn(accId: string, shiftCode: string){
+        const query = `
+            SELECT * 
+            FROM work_on
+            WHERE shift_code='${shiftCode}' AND account_id='${accId}';
+        `;
+        
+        console.log(query)
+        const data = await this.cnn
+            .query(query)
+            .then((res: dbResponse) => {
+                return res.rows.pop();
+            })
+            .catch((e) => {
+                throw new BadRequestException('Invalid input data');
+            });
+
+        return data;
     }
 }
