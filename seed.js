@@ -1,162 +1,266 @@
-const Pool = require('pg').Pool;
+const fs = require('fs');
+const { Pool } = require('pg');
+const { exec } = require('child_process');
+const util = require('util');
+const { async } = require('rxjs');
+const { promisify } = util;
+require('dotenv').config({ path: './.development.env' });
+const dataset_dir_path = './data_set'
 
-//connect to database
+// Set up the connection to the PostgreSQL database
 const pool = new Pool({
-    user: 'korrawee_',
-    host: 'localhost',
-    database: 'test_seed',
-    password: '1234',
-    port: 5432,
+  user: process.env.POSTGRES_USER,
+  host: process.env.POSTGRES_HOST,
+  database: process.env.POSTGRES_DB,
+  password: process.env.POSTGRES_PASSWORD.toString(),
+  port: process.env.POSTGRES_PORT, // or the port number of your PostgreSQL server
 });
 
-async function tableCreation() {
-    //Create accounts table
-    pool.query(
-        `CREATE TABLE accounts(
-        account_id text primary key,
-        username text unique not null,
-        password text,
-        fullname text,
-        role text not null,
-        telephone text,
-        performance numeric not null,
-        details json,
-        mng_id text references accounts(account_id)
-        )`,
-        (err, results) => {
-            if (err) {
-                throw err;
-            }
-            //Create shifts table
-            pool.query(
-                `CREATE TABLE shifts(
-            shift_code text primary key,
-            date date not null,
-            shift_time time not null,
-            product_target numeric,
-            success_product numeric default 0.0,
-            ideal_performance numeric default 0.0,
-            all_member integer,
-            checkin_member integer
-            )`,
-                (err, results) => {
-                    if (err) {
-                        throw err;
-                    }
-                    //Create departments table
-                    pool.query(
-                        `CREATE TABLE departments(
-                    department_id text primary key,
-                    name text not null,
-                    mng_id text references accounts(account_id)
-                    )`,
-                        (err, results) => {
-                            if (err) {
-                                throw err;
-                            }
-                            //Create factories table
-                            pool.query(
-                                `CREATE TABLE factories(
-                            factory_id text primary key,
-                            name text not null,
-                            mng_id text references accounts(account_id)
-                            )`,
-                                (err, results) => {
-                                    if (err) {
-                                        throw err;
-                                    }
-                                    //Create logs table
-                                    pool.query(
-                                        `CREATE TABLE logs(
-                                    log_id serial primary key,
-                                    create_at timestamp default now(),
-                                    action text,
-                                    details text,
-                                    mng_id text references accounts(account_id)
-                                    )`,
-                                        (err, results) => {
-                                            if (err) {
-                                                throw err;
-                                            }
-                                            //Create _have table
-                                            pool.query(
-                                                `CREATE TABLE _have(
-                                            factory_id text references factories(factory_id),
-                                            department_id text references departments(department_id)
-                                            )`,
-                                                (err, results) => {
-                                                    if (err) {
-                                                        throw err;
-                                                    }
-                                                    //Create _controls table
-                                                    pool.query(
-                                                        `CREATE TABLE _controls(
-                                                    shift_code text references shifts(shift_code),
-                                                    department_id text references departments(department_id)
-                                                    )`,
-                                                        (err, results) => {
-                                                            if (err) {
-                                                                throw err;
-                                                            }
-                                                            //Create work_on table
-                                                            pool.query(
-                                                                `CREATE TABLE work_on(
-                                                            task_id serial primary key,
-                                                            account_id text references accounts(account_id),
-                                                            shift_code text references shifts(shift_code),
-                                                            checkin_time time,
-                                                            checkout_time time,
-                                                            ot numeric,
-                                                            date date
-                                                            )`,
-                                                                (
-                                                                    err,
-                                                                    results
-                                                                ) => {
-                                                                    if (err) {
-                                                                        throw err;
-                                                                    }
-                                                                    //Create requests table
-                                                                    pool.query(
-                                                                        `CREATE TABLE requests(
-                                                                    task_id integer references work_on(task_id),
-                                                                    account_id text references accounts(account_id),
-                                                                    date date,
-                                                                    number_of_hour numeric,
-                                                                    req_status text,
-                                                                    mng_id text references accounts(account_id),
-                                                                    create_at timestamp default now()
-                                                                    )`,
-                                                                        (
-                                                                            err,
-                                                                            results
-                                                                        ) => {
-                                                                            if (
-                                                                                err
-                                                                            ) {
-                                                                                throw err;
-                                                                            }
-                                                                            console.log(
-                                                                                'Create accounts table success!!'
-                                                                            );
-                                                                        }
-                                                                    );
-                                                                }
-                                                            );
-                                                        }
-                                                    );
-                                                }
-                                            );
-                                        }
-                                    );
-                                }
-                            );
-                        }
-                    );
-                }
-            );
-        }
-    );
-}
+const seed_DB = async () => {
+  const { stdout, stderr } = await promisify(exec)('./scripts/run-seed.sh');
+  console.log('stdout:', stdout);
+  console.log('stderr:', stderr);
 
-tableCreation();
+  //Managers
+  const managersRawData = fs.readFileSync(`${dataset_dir_path}/Managers.json`);
+  const managerData = JSON.parse(managersRawData);
+  const insertManager = async()=>{
+    const insertManagerQuery = `INSERT INTO accounts VALUES (
+                                    $1,
+                                    $2,
+                                    $3,
+                                    $4,
+                                    $5,
+                                    $6,
+                                    $7,
+                                    NULL
+                                );`
+    for (const row_data of managerData) {
+      await client.query(insertManagerQuery, [
+        row_data.account_id,
+        row_data.username,
+        row_data.password,
+        row_data.full_name,
+        'manager',
+        10,
+        {
+          telephone: row_data.telephone,
+          address: row_data.address,
+          gender: row_data.gender,
+          race: row_data.race,
+          email: row_data.email,
+        },
+      ]);
+    }
+  }
+
+  //Accounts
+  const accountRawData = fs.readFileSync(`${dataset_dir_path}/Accounts.json`)
+  const accountData = JSON.parse(accountRawData)
+  const insertAccount = async () =>{
+    const insertAccountQuery = `INSERT INTO accounts VALUES (
+                                  $1,
+                                  $2,
+                                  $3,
+                                  $4,
+                                  $5,
+                                  $6,
+                                  $7,
+                                  $8
+                                );`
+    for (const row_data of accountData) {
+      await client.query(insertAccountQuery, [
+        row_data.account_id,
+        row_data.username,
+        row_data.password,
+        row_data.full_name,
+        'manager',
+        10,
+        {
+          telephone: row_data.telephone,
+          address: row_data.address,
+          gender: row_data.gender,
+          race: row_data.race,
+          email: row_data.email,
+        },
+        row_data.mng_id,
+      ]);
+    }
+  }
+
+  //Factory
+  const factoryRawData = fs.readFileSync(`${dataset_dir_path}/Factory.json`)
+  const factoryData = JSON.parse(factoryRawData)
+  const insertFactory = async()=>{
+    const insertFactoryQuery = `INSERT INTO factories VALUES (
+                                  $1,
+                                  $2,
+                                  $3
+                                );`
+    for (const row_data of factoryData) {
+      await client.query(insertFactoryQuery, [
+        row_data.factory_id,
+        row_data.factory_name,
+        row_data.mng_id
+      ]);
+    }
+  }
+
+  //Department
+  const departmentRawData = fs.readFileSync(`${dataset_dir_path}/Departments.json`)
+  const departmentData = JSON.parse(departmentRawData)
+  const insertDepartment = async()=>{
+    const insertDepartmentQuery = `INSERT INTO departments VALUES (
+                                  $1,
+                                  $2,
+                                  $3,
+                                  $4
+                                );`
+    for (const row_data of departmentData) {
+      await client.query(insertDepartmentQuery, [
+        row_data.department_id,
+        row_data.department_name,
+        row_data.mng_id,
+        row_data.factory_id
+      ]);
+    }
+  }
+
+  //Shift
+  const shiftsRawData = fs.readFileSync(`${dataset_dir_path}/shifts.json`)
+  const shiftData = JSON.parse(shiftsRawData)
+  const insertShift = async()=>{
+    const insertShiftQuery = `INSERT INTO shifts VALUES (
+                                  $1,
+                                  CAST($2 as  date),
+                                  to_timestamp($3, 'HH24.MI'),
+                                  $4,
+                                  $5,
+                                  $6,
+                                  $7,
+                                  $8,
+                                  $9
+                                );`
+    for (const row_data of shiftData) {
+      await client.query(insertShiftQuery, [
+        row_data.shift_code,
+        row_data.date,
+        row_data.shift_time,
+        1000,
+        500.0,
+        50.0,
+        7,
+        15,
+        row_data.department_id
+      ]);
+    }
+  }
+
+  //Work_on and logs for work_on
+  const work_onRawData = fs.readFileSync(`${dataset_dir_path}/work_on.json`)
+  const work_onData = JSON.parse(work_onRawData)
+  const insertWork_on = async()=>{
+    const insertWork_onQuery = `INSERT INTO work_on VALUES (
+                                $1,
+                                $2,
+                                to_timestamp($3, 'HH24.MI'),
+                                $4,
+                                $5,
+                                $6
+                              );`
+    const insertLogQuery = `INSERT INTO logs(mng_id, action, details, create_at) VALUES (
+                              $1,
+                              $2,
+                              $3,
+                              to_timestamp($4, 'MM/DD/YYYY')
+                            );`
+    for (const row_data of work_onData) {
+      await client.query(insertWork_onQuery, [
+        row_data.account_id,
+        row_data.shift_code,
+        row_data.checkin_time,
+        null,
+        0.0,
+        row_data.date
+      ]);
+      await client.query(insertLogQuery,[
+        row_data.mng_id,
+        "Add Worker",
+        {
+          department_id: row_data.department_id,
+          department_name: row_data.department_name,
+          account_id: row_data.account_id
+        },
+        row_data.date
+      ])
+    }
+  }
+
+  //Request and logs for request
+  const requestRawData = fs.readFileSync(`${dataset_dir_path}/requests.json`)
+  const requestData = JSON.parse(requestRawData)
+  const insertRequest = async()=>{
+    const insertWork_onQuery = `INSERT INTO requests VALUES (
+                                $1,
+                                $2,
+                                cast($3 as date),
+                                $4,
+                                $5,
+                                $6,
+                                cast($7 as timestamp)
+                              );`
+    const insertLogQuery = `INSERT INTO logs(mng_id, action, details, create_at) VALUES (
+                              $1,
+                              $2,
+                              $3,
+                              to_timestamp($4, 'MM/DD/YYYY')
+                            );`
+    for (const row_data of requestData) {
+      await client.query(insertWork_onQuery, [
+        row_data.shift_code,
+        row_data.account_id,
+        row_data.date,
+        row_data.number_of_hour? row_data.number_of_hour: 4,
+        'รอดำเนินการ',
+        row_data.mng_id,
+        row_data.date
+      ]);
+      await client.query(insertLogQuery,[
+        row_data.mng_id,
+        "Add OT",
+        {
+          department_id: row_data.department_id,
+          department_name: row_data.department_name,
+          account_id: row_data.account_id,
+          number_of_hour: row_data.number_of_hour? row_data.number_of_hour: 4
+        },
+        row_data.date
+      ])
+    }
+  }
+
+  const client = await pool.connect();
+
+  try {
+    await client.query('BEGIN');
+
+    await insertManager()
+    await insertAccount()
+    await insertFactory()
+    await insertDepartment()
+    await insertShift()
+    await insertWork_on()
+    await insertRequest()
+
+    await client.query('COMMIT');
+  } catch (e) {
+    await client.query('ROLLBACK');
+    throw e;
+  } finally {
+    client.release();
+    await client.end();
+  }
+};
+seed_DB()
+
+                           

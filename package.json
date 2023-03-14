@@ -4,6 +4,7 @@
     "description": "",
     "author": "",
     "license": "MIT",
+    "type":"commonjs",
     "scripts": {
         "prebuild": "rimraf dist",
         "build": "nest build",
