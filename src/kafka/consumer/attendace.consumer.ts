@@ -52,13 +52,21 @@ export class AttendanceConsumer implements OnModuleInit {
         // Prep. data
         const payload: IUpdateAttendance =
             JSON.parse(message.value.toString());
-        
+        console.log('payload',payload);
+        const workOnOld: WorkOnDto = await this.workOnService.getOneWorkOn(payload.account_id, payload.shift_code);
         // Update attendace
-        const workOn: WorkOnDto = await this.workOnService.update(payload);
+        const workOnUpdated: WorkOnDto = await this.workOnService.update(payload);
+        const shift: ShiftDto = await this.shiftService.getShiftById(workOnUpdated.shift_code);
 
-        const shift: ShiftDto = await this.shiftService.getShiftById(workOn.shift_code);
-
+        if(!workOnOld.checkin_time && workOnUpdated.checkin_time){
+            await this.shiftService.updateShift({...shift, checkin_member: shift.checkin_member + 1});
+        }else{
+            await this.shiftService.updateShift({...shift})
+        }
+        console.log('shift', shift);
+        
         const department: DepartmentforDashboardDto = await this.departmentService.getDepartmentById(shift.department_id);
+        console.log('departmetn', department)
    
         // Notices to client
         if(this.sendNoticeToClient(department.mng_id)){
