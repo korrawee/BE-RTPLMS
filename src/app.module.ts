@@ -13,7 +13,7 @@ import { ShiftModule } from './shift/shift.module';
 import { LogScreenModule } from './screens/log/log.module';
 import { LogModule } from './log/log.module';
 import { LoginModule } from './screens/login/login.module';
-import { KafkaModule } from './kafka/kafka.module';
+// import { KafkaModule } from './kafka/kafka.module';
 import { DepartmentModule } from './department/department.module';
 import { DashboardModule } from './screens/dashboard/dashboard.module';
 import { EventsModule } from './events/events.module';
@@ -54,7 +54,7 @@ import { EventsModule } from './events/events.module';
         LogModule,
         LogScreenModule,
         LoginModule,
-        KafkaModule,
+        // KafkaModule,
         EventsModule,
     ],
     controllers: [AppController],

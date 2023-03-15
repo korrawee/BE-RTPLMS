@@ -205,8 +205,11 @@ export class RequestService {
                 const shift: ShiftDto = await this.shiftService.getShiftById(
                     body.shiftCode
                 );
-                const department: DepartmentforDashboardDto = await this.departmentService.getDepartmentById(shift.department_id);
-                    
+                const department: DepartmentforDashboardDto =
+                    await this.departmentService.getDepartmentById(
+                        shift.department_id
+                    );
+
                 const logDetail: DetailsDto = {
                     department: department.name,
                     department_id: department.department_id,
@@ -261,8 +264,11 @@ export class RequestService {
                 const shift: ShiftDto = await this.shiftService.getShiftById(
                     body.shiftCode
                 );
-                const department: DepartmentforDashboardDto = await this.departmentService.getDepartmentById(shift.department_id);
-                    
+                const department: DepartmentforDashboardDto =
+                    await this.departmentService.getDepartmentById(
+                        shift.department_id
+                    );
+
                 const logDetail: DetailsDto = {
                     department: department.name,
                     department_id: department.department_id,

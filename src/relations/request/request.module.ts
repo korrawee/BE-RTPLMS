@@ -8,7 +8,13 @@ import { RequestController } from './request.controller';
 import { RequestService } from './request.service';
 
 @Module({
-    imports: [WorkOnModule, AccountModule, ShiftModule, DepartmentModule, LogModule],
+    imports: [
+        WorkOnModule,
+        AccountModule,
+        ShiftModule,
+        DepartmentModule,
+        LogModule,
+    ],
     controllers: [RequestController],
     providers: [RequestService],
     exports: [RequestService],

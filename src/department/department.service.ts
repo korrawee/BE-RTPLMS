@@ -7,22 +7,21 @@ import { InjectClient } from 'nest-postgres';
 @Injectable()
 export class DepartmentService {
     constructor(@InjectClient() private readonly cnn: Client) {}
-
+    
     async getDepartmentsById(mngId: string) {
         if (!Number.isInteger(parseInt(mngId)))
-            throw new BadRequestException('manager id must be an integer.');
-
+        throw new BadRequestException('manager id must be an integer.');
+        
         const query = `select department_id, name from departments where mng_id='${mngId}';`;
         const department: DepartmentforDashboardDto[] = await this.cnn
-            .query(query)
-            .then((res: dbResponse) => {
-                return res.rows;
-            })
-            .catch((error: any) => {
-                console.error(error);
-                throw new BadRequestException(error.message);
-            });
-
+        .query(query)
+        .then((res: dbResponse) => {
+            return res.rows;
+        })
+        .catch((error: any) => {
+            console.error(error);
+            throw new BadRequestException(error.message);
+        });
         return department;
     }
 
@@ -32,8 +31,9 @@ export class DepartmentService {
             FROM departments
             WHERE department_id='${departId}'
             ;
-        `
-        const department = await this.cnn.query(query)
+        `;
+        const department = await this.cnn
+            .query(query)
             .then((res: dbResponse) => {
                 return res.rows.pop();
             })
@@ -41,7 +41,7 @@ export class DepartmentService {
                 console.error(error);
                 throw new BadRequestException(error.message);
             });
-    
+
         return department;
     }
 }

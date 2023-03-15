@@ -59,10 +59,15 @@ export class ShiftService {
                 const shift = await this.cnn
                     .query(query)
                     .then((res: dbResponse) => {
-                        if(res.rows.length == 0) throw new Error('No current shift.')
+                        if (res.rows.length == 0)
+                            return
+                            // throw new Error('No current shift.');
                         return res.rows.pop();
                     })
                     .then((shift: ShiftforDashboardAttrDto) => {
+                        if (!shift){
+                            return null
+                        }
                         const prediction = (
                             remain_time: number,
                             remain_target: number,
@@ -98,7 +103,7 @@ export class ShiftService {
         //     return res;
         // });
 
-        return data.then((res) => res);
+        return data.then((res)=>res.filter((shift)=> (shift!=null)));
     }
 
     public async getShiftTimeById(shiftCode: string) {
@@ -176,6 +181,4 @@ export class ShiftService {
 
         return shift;
     }
-
-    
 }

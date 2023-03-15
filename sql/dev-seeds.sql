@@ -8,7 +8,6 @@ begin
         '1234',
         concat('full-name', cast(0 AS text)),
         'manager',
-        '0981',
         12.0,
         '{"data": "eiei"}', 
         NULL
@@ -22,7 +21,6 @@ begin
             '1234',
             concat('Worker No.', cast(index AS text)),
             'worker',
-            '0981',
             12.0,
             '{"data": "eiei"}', 
             '0'

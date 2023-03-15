@@ -93,7 +93,7 @@ export class AccountService {
             ''
         );
 
-        const query = `SELECT * FROM accounts WHERE account_id IN (${newAccountIds}) ORDER BY cast(account_id AS int);`;
+        const query = `SELECT * FROM accounts WHERE account_id IN (${newAccountIds}) ORDER BY cast(account_id AS text);`;
         const data = await this.cnn
             .query(query)
             .then((res: dbResponse) => {

@@ -31,7 +31,7 @@ export class WorkOnService {
                 ELSE 'ยังไม่เข้างาน'
             END AS checkin_status
             FROM work_on WHERE shift_code='${shiftCode}'
-            ORDER BY cast(account_id AS int);
+            ORDER BY cast(account_id AS text);
         `;
         const allWorkOnThisShift: WorkOnDto[] = await this.cnn
             .query(query)
@@ -39,7 +39,7 @@ export class WorkOnService {
                 return res.rows;
             })
             .catch((e) => {
-                throw new BadRequestException('Invalid input data');
+                throw new BadRequestException(e.message);
             });
         return allWorkOnThisShift;
     }
@@ -56,7 +56,7 @@ export class WorkOnService {
                 SELECT * FROM accounts WHERE mng_id='${mng_id}'
             )
             ,worker_in_shift as (
-                SELECT account_id FROM work_on WHERE shift_code='${shiftCode}' AND date='${date}'
+                SELECT account_id FROM work_on WHERE shift_code='${shiftCode}'
             )
             SELECT worker_of_mng.account_id, worker_of_mng.fullname, worker_of_mng.performance 
             FROM worker_of_mng 
@@ -122,8 +122,11 @@ export class WorkOnService {
                 const shift: ShiftDto = await this.shiftService.getShiftById(
                     body.shiftCode
                 );
-                const department: DepartmentforDashboardDto = await this.departmentService.getDepartmentById(shift.department_id);
-                    
+                const department: DepartmentforDashboardDto =
+                    await this.departmentService.getDepartmentById(
+                        shift.department_id
+                    );
+
                 const logDetail: DetailsDto = {
                     department: department.name,
                     department_id: department.department_id,
@@ -171,8 +174,11 @@ export class WorkOnService {
                 const shift: ShiftDto = await this.shiftService.getShiftById(
                     body.shiftCode
                 );
-                const department: DepartmentforDashboardDto = await this.departmentService.getDepartmentById(shift.department_id);
-                    
+                const department: DepartmentforDashboardDto =
+                    await this.departmentService.getDepartmentById(
+                        shift.department_id
+                    );
+
                 const logDetail: DetailsDto = {
                     department: department.name,
                     department_id: department.department_id,
