@@ -12,15 +12,12 @@ export class ScheduleService {
     async getScheduleByAccountId(accId: string) {
         // Is account id a integer
 
-        if (!Number.isInteger(parseInt(accId)))
-            throw new BadRequestException('Invalid account id.');
-
         const query = `
             WITH
             w as (
                     SELECT * 
                     FROM work_on 
-                    where account_id='3'
+                    where account_id='${accId}'
                     ),
             w_to_s as (
                     SELECT w.*, 
@@ -36,17 +33,17 @@ export class ScheduleService {
                     INNER JOIN w 
                     ON s.shift_code=w.shift_code
                     ), 
-            w_to_s_to_d as (
-                    SELECT s_to_c.*, d.name
-                    FROM departments AS d 
-                    INNER JOIN w_to_s 
-                    ON d.department_id=w_to_s.department_id
-                    )
+            w_to_s_to_d AS (
+                SELECT s.*, d.name
+                FROM w_to_s AS s
+                INNER JOIN departments AS d ON s.department_id = d.department_id
+            )
             SELECT prev.name AS department_name, prev.checkin_time, prev.checkout_time, prev.checkin_status, prev.shift_time, prev.date
             FROM w_to_s_to_d as prev
             INNER JOIN accounts as a 
             ON a.account_id=prev.account_id;
         `;
+        console.log(query)
 
         const workPlanSchedule: WorkPlanSchedule[] = await this.cnn
             .query(query)

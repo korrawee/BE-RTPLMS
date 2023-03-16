@@ -76,7 +76,7 @@ const seed_DB = async () => {
                 row_data.username,
                 row_data.password,
                 row_data.full_name,
-                'manager',
+                'worker',
                 10,
                 {
                     telephone: row_data.telephone,
