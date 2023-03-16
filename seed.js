@@ -6,6 +6,8 @@ const { async } = require('rxjs');
 const { promisify } = util;
 require('dotenv').config({ path: './.development.env' });
 const dataset_dir_path = './data_set';
+const moment = require('moment');
+const { randomInt } = require('crypto');
 
 // Set up the connection to the PostgreSQL database
 const pool = new Pool({
@@ -15,6 +17,23 @@ const pool = new Pool({
     password: process.env.POSTGRES_PASSWORD.toString(),
     port: process.env.POSTGRES_PORT, // or the port number of your PostgreSQL server
 });
+
+const mawhang_data = {
+    account_id:"12-3456-78",
+    username: "worker",
+    password:"123",
+    full_name:"Mawhang Khompee",
+    role:"worker",
+    performance:10,
+    details:{
+        telephone: "012-345-6789",
+        address: "12/3 Bonking khangton 1111",
+        gender: "Male",
+        race: "Asian",
+        email: "Mawhangzaa@kingkongkhaw.com",
+    },
+    mng_id: '29-6308534'
+}
 
 const seed_DB = async () => {
     const { stdout, stderr } = await promisify(exec)('./scripts/run-seed.sh');
@@ -88,6 +107,16 @@ const seed_DB = async () => {
                 row_data.mng_id,
             ]);
         }
+        await client.query(insertAccountQuery,[
+            mawhang_data.account_id,
+            mawhang_data.username,
+            mawhang_data.password,
+            mawhang_data.full_name,
+            mawhang_data.role,
+            mawhang_data.performance,
+            mawhang_data.details,
+            mawhang_data.mng_id
+        ])
     };
 
     //Factory
@@ -178,11 +207,12 @@ const seed_DB = async () => {
                               $3,
                               to_timestamp($4, 'MM/DD/YYYY')
                             );`;
+        let couter = 1
         for (const row_data of work_onData) {
             await client.query(insertWork_onQuery, [
                 row_data.account_id,
                 row_data.shift_code,
-                row_data.checkin_time,
+                moment(row_data.checkin_time, 'HH:mm:ss').add(randomInt(0,30),'minutes').format("HH:mm:ss"),
                 null,
                 0.0,
                 row_data.date,
@@ -197,6 +227,16 @@ const seed_DB = async () => {
                 },
                 row_data.date,
             ]);
+            if(parseInt(row_data.shift_code)%18 == 1 && couter++ < 8){
+                await client.query(insertWork_onQuery,[
+                    mawhang_data.account_id,
+                    row_data.shift_code,
+                    moment(row_data.checkin_time, 'HH:mm:ss').add(randomInt(0,30),'minutes').format("HH:mm:ss"),
+                    null,
+                    0.0,
+                    row_data.date
+                ])
+            }
         }
     };
 

@@ -43,7 +43,6 @@ export class ScheduleService {
             INNER JOIN accounts as a 
             ON a.account_id=prev.account_id;
         `;
-        console.log(query)
 
         const workPlanSchedule: WorkPlanSchedule[] = await this.cnn
             .query(query)
