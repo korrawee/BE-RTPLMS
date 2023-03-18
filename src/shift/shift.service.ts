@@ -134,6 +134,7 @@ export class ShiftService {
             .catch((e) => {
                 throw new BadRequestException('Invalid input Data');
             });
+        // console.log(typeof shift.success_product_in_shift_time)
         return shift;
     }
 

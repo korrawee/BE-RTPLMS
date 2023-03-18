@@ -84,7 +84,7 @@ const seed_DB = async () => {
                                   $3,
                                   $4,
                                   $5,
-                                  $6,
+                                  CAST($6 as numeric),
                                   $7,
                                   $8
                                 );`;
@@ -166,12 +166,12 @@ const seed_DB = async () => {
                                   $1,
                                   CAST($2 as  date),
                                   to_timestamp($3, 'HH24.MI'),
-                                  $4,
-                                  $5,
-                                  $6,
-                                  $7,
-                                  $8,
-                                  $9,
+                                  CAST($4 as numeric),
+                                  CAST($5 AS numeric),
+                                  CAST($6 AS numeric),
+                                  CAST($7 AS numeric),
+                                  CAST($8 AS numeric),
+                                  CAST($9 AS numeric),
                                   $10
                                 );`;
         for (const row_data of shiftData) {
@@ -199,7 +199,7 @@ const seed_DB = async () => {
                                 $2,
                                 to_timestamp($3, 'HH24.MI'),
                                 $4,
-                                $5,
+                                CAST($5 as numeric),
                                 $6
                               );`;
         const insertLogQuery = `INSERT INTO logs(mng_id, action, details, create_at) VALUES (

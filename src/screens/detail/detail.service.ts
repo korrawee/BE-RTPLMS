@@ -110,12 +110,14 @@ export class DetailService {
                 //Check on shift_time case or on OT_time case
                 if(moment().isBefore(shift_plan_end_time)){
                 //if on shift_time case
-
+                    
                     //predict in shift time product by (successProduct/shift_time_used)
                     //formular is (Number of success product since shift time started)/(Time used)
                     const actual_performance = (shift.success_product_in_shift_time/(moment.duration(moment().diff(shift_start_time)).asHours()))
                     //formular is (Predic product)+(Success product from work plan)
-                    const work_plan_product_predicted = (actual_performance*(moment.duration(shift_plan_end_time.diff(moment())).asHours()))+shift.success_product_in_shift_time
+                    const work_plan_product_predicted = (actual_performance*(moment.duration(shift_plan_end_time.diff(moment())).asHours()))+parseFloat(shift.success_product_in_shift_time.toString())
+                    console.log(work_plan_product_predicted)
+
                     if(work_plan_product_predicted>=parseFloat(shift.product_target)){
                     return {prediction:'สำเร็จในเวลา'}
                     }else{
@@ -126,7 +128,7 @@ export class DetailService {
                     //formular is (Number of success product since OT started)/(Time used)
                     const actual_performance = (shift.success_product_in_OT_time/(moment.duration(moment().diff(shift_plan_end_time)).asHours()))
                     //formular is (Predic product)+(Success product from work plan)+(Success product from OT)
-                    const OT_product_predicted = (actual_performance*(moment.duration(shift_OT_end_time.diff(moment())).asHours()))+shift.success_product_in_shift_time+shift.success_product_in_OT_time
+                    const OT_product_predicted = (actual_performance*(moment.duration(shift_OT_end_time.diff(moment())).asHours()))+parseFloat(shift.success_product_in_shift_time.toString())+parseFloat(shift.success_product_in_OT_time.toString())
                     if(OT_product_predicted>=parseFloat(shift.product_target)){
                     return {prediction:'สำเร็จในเวลา'}
                     }else{
