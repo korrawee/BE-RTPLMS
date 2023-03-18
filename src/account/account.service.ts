@@ -144,4 +144,21 @@ export class AccountService {
 
         return data;
     }
+
+    public async getPerformanceByID(account_id: string){
+        const query = `
+            SELECT performance
+            FROM accounts
+            WHERE account_id='${account_id}';        
+        `
+        const queryData = await this.cnn
+        .query(query)
+        .then((res)=>{
+            return res.rows.pop().performance
+        })
+        .catch((error)=>{
+            throw new Error(error)
+        })
+        return queryData
+    }
 }

@@ -10,4 +10,9 @@ export class DetailController {
         const res = await this.detailService.getData(shiftCode);
         return res;
     }
+
+    @Get('/prediction/:id')
+    async getPrediction(@Param('id') shift_code: string) {
+        return await this.detailService.getPrediction(shift_code);
+    }
 }

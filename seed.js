@@ -2,7 +2,6 @@ const fs = require('fs');
 const { Pool } = require('pg');
 const { exec } = require('child_process');
 const util = require('util');
-const { async } = require('rxjs');
 const { promisify } = util;
 require('dotenv').config({ path: './.development.env' });
 const dataset_dir_path = './data_set';
@@ -172,7 +171,8 @@ const seed_DB = async () => {
                                   $6,
                                   $7,
                                   $8,
-                                  $9
+                                  $9,
+                                  $10
                                 );`;
         for (const row_data of shiftData) {
             await client.query(insertShiftQuery, [
@@ -181,6 +181,7 @@ const seed_DB = async () => {
                 row_data.shift_time,
                 1000,
                 500.0,
+                0.0,
                 50.0,
                 7,
                 5,
@@ -212,7 +213,7 @@ const seed_DB = async () => {
             await client.query(insertWork_onQuery, [
                 row_data.account_id,
                 row_data.shift_code,
-                moment(row_data.checkin_time, 'HH:mm:ss').add(randomInt(0,30),'minutes').format("HH:mm:ss"),
+                moment(row_data.checkin_time, 'HH:mm:ss').add(randomInt(-20,30),'minutes').format("HH:mm:ss"),
                 null,
                 0.0,
                 row_data.date,
@@ -231,7 +232,7 @@ const seed_DB = async () => {
                 await client.query(insertWork_onQuery,[
                     mawhang_data.account_id,
                     row_data.shift_code,
-                    moment(row_data.checkin_time, 'HH:mm:ss').add(randomInt(0,30),'minutes').format("HH:mm:ss"),
+                    moment(row_data.checkin_time, 'HH:mm:ss').add(randomInt(-20,30),'minutes').format("HH:mm:ss"),
                     null,
                     0.0,
                     row_data.date

@@ -11,7 +11,9 @@ import moment = require('moment');
 
 @Injectable()
 export class ShiftService {
-    constructor(@InjectClient() private readonly cnn: Client) {}
+    constructor(
+        @InjectClient() private readonly cnn: Client,
+    ) {}
 
     async getShiftsById(
         departmentsId: string[],
@@ -68,16 +70,6 @@ export class ShiftService {
                         if (!shift){
                             return null
                         }
-                        const prediction = (
-                            remain_time: number,
-                            remain_target: number,
-                            performance: number
-                        ) => {
-                            performance * remain_time >= remain_target
-                                ? 'ทันเวลา'
-                                : 'ไม่ทันเวลา';
-                        };
-                        // const remain_time =
                         const res: ShiftforDashboardDto = {
                             shiftCode: shift.shift_code,
                             shiftDate: moment(shift.date).format('YYYY/MM/DD'),

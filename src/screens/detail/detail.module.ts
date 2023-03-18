@@ -4,9 +4,10 @@ import { RequestModule } from '../../relations/request/request.module';
 import { WorkOnModule } from '../../relations/work-on/work-on.module';
 import { DetailController } from './detail.controller';
 import { DetailService } from './detail.service';
+import { ShiftModule } from 'src/shift/shift.module';
 
 @Module({
-    imports: [AccountModule, RequestModule, WorkOnModule],
+    imports: [AccountModule, RequestModule, WorkOnModule, ShiftModule],
     providers: [DetailService],
     controllers: [DetailController],
 })

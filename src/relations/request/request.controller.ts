@@ -22,11 +22,9 @@ export class RequestController {
     @Get('/shifts/:shiftCode')
     public async getAllRequest(
         @Param('shiftCode') shiftCode: string,
-        @Query('date') date: string
     ) {
-        return await this.reqService.getAllRequestByShiftAndDate(
+        return await this.reqService.getAllRequestByShift_id(
             shiftCode,
-            date
         );
     }
 

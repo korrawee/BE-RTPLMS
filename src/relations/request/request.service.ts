@@ -50,16 +50,15 @@ export class RequestService {
             });
     }
 
-    public async getAllRequestByShiftAndDate(
+    public async getAllRequestByShift_id(
         shiftCode: string,
-        date: string
-    ): Promise<RequestForOtDetailDto[]> {
-        const query = `SELECT * FROM requests WHERE shift_code='${shiftCode}' AND date='${date}';`;
+    ): Promise<RequestDto[]> {
+        const query = `SELECT * FROM requests WHERE shift_code='${shiftCode}';`;
 
-        const data: RequestForOtDetailDto[] = await this.cnn
+        const data: RequestDto[] = await this.cnn
             .query(query)
             .then((res: dbResponse) => {
-                const resData: RequestForOtDetailDto[] = res.rows;
+                const resData: RequestDto[] = res.rows;
                 return resData;
             })
             .catch((e) => {
@@ -343,8 +342,8 @@ export class RequestService {
     }
 
     public async getRequestByAccountId(accId: string) {
-        if (!isNumber(parseInt(accId)))
-            throw new BadRequestException('Invalid account id');
+        // if (!isNumber(parseInt(accId)))
+        //     throw new BadRequestException('Invalid account id');
 
         const query = `
             SELECT shift_code, date, number_of_hour, req_status, create_at 
