@@ -74,7 +74,9 @@ export class ShiftService {
                             shiftCode: shift.shift_code,
                             shiftDate: moment(shift.date).format('YYYY/MM/DD'),
                             shiftTime: shift.shift_time,
-                            successProduct: shift.success_product,
+                            product_target: shift.product_target,
+                            success_product_in_shiftTime: shift.success_product_in_shift_time,
+                            success_product_in_OTTime: shift.success_product_in_ot_time,
                             allMember: shift.all_member,
                             checkInMember: shift.checkin_member,
                             idealPerformance: shift.ideal_performance,
@@ -146,8 +148,6 @@ export class ShiftService {
             if (typeof val === 'string') {
                 val = `'${val}'`;
             } else if (typeof val === 'object') {
-                // const d = new Date(val);
-                // val = `'${d.getFullYear()}-${d.getMonth()}-${d.getDate()}'`;
                 val = moment(val).format("'YYYY-MM-DD'");
             } else {
             }
