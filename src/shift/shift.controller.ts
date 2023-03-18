@@ -11,6 +11,11 @@ export class ShiftController {
         return await this.shiftService.getShiftsById([id], date);
     }
 
+    @Get(':id')
+    async getOneShift(@Param('id') id: string) {
+        return await this.shiftService.getShiftById(id);
+    }
+
     @Patch()
     async updateShift(@Body() body: UpdateShiftDto) {
         return await this.shiftService.updateShift(body);
