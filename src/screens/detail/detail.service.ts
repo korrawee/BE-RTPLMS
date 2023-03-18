@@ -66,14 +66,14 @@ export class DetailService {
     public async getPrediction(shift_code: string){
         const shift = await this.shiftService.getShiftById(shift_code)
         const request_list = await this.requestService.getAllRequestByShift_id(shift_code)
-        const shift_OT_time = Math.max(...request_list.filter((req)=>req.req_status==="ยอมรับ").map((req)=>req.number_of_hour))
+        const shift_OT_time = request_list.filter((req)=>req.req_status==="ยอมรับ").length!=0?Math.max(...request_list.filter((req)=>req.req_status==="ยอมรับ").map((req)=>req.number_of_hour)):0
         const shift_start_time = moment(`${moment(shift.date).format("YYYY-MM-DD")} ${shift.shift_time}`, "YYYY-MM-DD HH:mm:ss")
         const shift_plan_end_time = moment(`${moment(shift.date).format("YYYY-MM-DD")} ${shift.shift_time}`, "YYYY-MM-DD HH:mm:ss").add(8,'hours')
         const shift_OT_end_time = moment(`${moment(shift.date).format("YYYY-MM-DD")} ${shift.shift_time}`, "YYYY-MM-DD HH:mm:ss").add(8+shift_OT_time,'hours')
         //check shift finished?
         if(moment().isAfter(shift_OT_end_time)){
             //if shift finished
-            return "จบกะแล้ว"
+            return {prediction: "จบกะแล้ว"}
         }else{// if not finished
             //Prediction OT product from ideal performance of OT plan
             const ideal_OT_predic_product = await Promise.all(request_list.map(async(req_data)=>{
@@ -101,9 +101,9 @@ export class DetailService {
 
                 //Prediction
                 if(ideal_work_plan_product_predicted+ideal_OT_predic_product>=parseFloat(shift.product_target)){
-                  return 'สำเร็จในเวลา'
+                  return {prediction:'สำเร็จในเวลา'}
                 }else{
-                  return 'ไม่สำเร็จในเวลา'
+                  return {prediction:'ไม่สำเร็จในเวลา'}
                 }
             }else{
                 //if started
@@ -117,9 +117,9 @@ export class DetailService {
                     //formular is (Predic product)+(Success product from work plan)
                     const work_plan_product_predicted = (actual_performance*(moment.duration(shift_plan_end_time.diff(moment())).asHours()))+shift.success_product_in_shift_time
                     if(work_plan_product_predicted>=parseFloat(shift.product_target)){
-                    return 'สำเร็จในเวลา'
+                    return {prediction:'สำเร็จในเวลา'}
                     }else{
-                    return 'ไม่สำเร็จในเวลา'
+                    return {prediction:'ไม่สำเร็จในเวลา'}
                     }
                 }else{
                     //if on OT time case
@@ -128,15 +128,12 @@ export class DetailService {
                     //formular is (Predic product)+(Success product from work plan)+(Success product from OT)
                     const OT_product_predicted = (actual_performance*(moment.duration(shift_OT_end_time.diff(moment())).asHours()))+shift.success_product_in_shift_time+shift.success_product_in_OT_time
                     if(OT_product_predicted>=parseFloat(shift.product_target)){
-                    return 'สำเร็จในเวลา'
+                    return {prediction:'สำเร็จในเวลา'}
                     }else{
-                    return 'ไม่สำเร็จในเวลา'
+                    return {prediction:'ไม่สำเร็จในเวลา'}
                     }
                 }
             }
-
-
-            // return OT_predic_product
         }
     }
 }
