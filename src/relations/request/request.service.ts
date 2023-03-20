@@ -19,9 +19,11 @@ import { DepartmentforDashboardDto } from '../../department/dto/DepartmentforDas
 import { ShiftService } from 'src/shift/shift.service';
 import { ShiftDto } from 'src/shift/dto/Shift.dto';
 import { DepartmentService } from 'src/department/department.service';
+import { Server } from 'socket.io';
 
 @Injectable()
 export class RequestService {
+    socketServer: Server;
     constructor(
         @InjectClient()
         private readonly cnn: Client,
@@ -103,7 +105,7 @@ export class RequestService {
                             : appendStr + ',')
                     );
                 }, '');
-                query = `INSERT INTO requests(shift_code, account_id, date, number_of_hour, mng_id) VALUES${values};`;
+                query = `INSERT INTO requests(shift_code, account_id, date, number_of_hour, mng_id) VALUES${values} RETURNING *;`;
                 break;
 
             case 'calHour':
@@ -134,7 +136,7 @@ export class RequestService {
                             : appendStr + ',')
                     );
                 }, '');
-                query = `INSERT INTO requests(shift_code, account_id, date, number_of_hour, mng_id) VALUES${values};`;
+                query = `INSERT INTO requests(shift_code, account_id, date, number_of_hour, mng_id) VALUES${values} RETURNING *;`;
 
                 break;
 
@@ -154,7 +156,7 @@ export class RequestService {
                             : appendStr + ',')
                     );
                 }, '');
-                query = `INSERT INTO requests(shift_code, account_id, date, number_of_hour, mng_id) VALUES${values};`;
+                query = `INSERT INTO requests(shift_code, account_id, date, number_of_hour, mng_id) VALUES${values} RETURNING *;`;
                 break;
 
             case 'assignNormal':
@@ -171,7 +173,7 @@ export class RequestService {
                     },
                     ''
                 );
-                query = `INSERT INTO requests(shift_code, account_id, date, number_of_hour, mng_id) VALUES${values};`;
+                query = `INSERT INTO requests(shift_code, account_id, date, number_of_hour, mng_id) VALUES${values} RETURNING *;`;
                 break;
 
             default:
@@ -188,7 +190,7 @@ export class RequestService {
                     },
                     ''
                 );
-                query = `INSERT INTO requests(shift_code, account_id, date, number_of_hour, mng_id) VALUES${values};`;
+                query = `INSERT INTO requests(shift_code, account_id, date, number_of_hour, mng_id) VALUES${values} RETURNING *;`;
                 break;
         }
 
@@ -196,6 +198,10 @@ export class RequestService {
             .query(query)
             .then((res: dbResponse) => {
                 const resResult: RequestDto[] = res.rows;
+                console.log('request', resResult)
+                // Trigger update on frontend
+                this.sendNoticeToClient(body.mngId);
+
                 return resResult;
             })
             .then(async () => {
@@ -252,6 +258,10 @@ export class RequestService {
         await this.cnn
             .query(query)
             .then((res: dbResponse) => {
+
+                // Trigger update on frontend
+                this.sendNoticeToClient(body.mngId);
+                
                 return res.rows;
             })
             .then(async () => {
@@ -397,6 +407,9 @@ export class RequestService {
         const result = await this.cnn
             .query(query)
             .then((res: dbResponse) => {
+                // Trigger update on frontend
+                this.sendNoticeToClient(body.mng_id);
+
                 return {
                     message: `Updated ot request of account number ${account_id} for shift number ${shift_code}.`,
                 };
@@ -405,5 +418,10 @@ export class RequestService {
                 throw new BadRequestException('Invalid data input');
             });
         return result;
+    }
+
+    private sendNoticeToClient(target: string) {
+        const topic = `${target}-request`;
+        return this.socketServer.emit(topic,{isUpdate: true});
     }
 }

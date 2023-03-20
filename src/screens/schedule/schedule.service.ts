@@ -37,7 +37,7 @@ export class ScheduleService {
                     ON s.shift_code=w.shift_code
                     ), 
             w_to_s_to_d as (
-                    SELECT s_to_c.*, d.name
+                    SELECT w_to_s.*, d.name
                     FROM departments AS d 
                     INNER JOIN w_to_s 
                     ON d.department_id=w_to_s.department_id
