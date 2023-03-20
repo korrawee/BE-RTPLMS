@@ -7,6 +7,8 @@ import { ConsumerService } from './consumer.service';
 import { Server } from 'socket.io';
 import { DepartmentService } from 'src/department/department.service';
 import { DepartmentforDashboardDto } from 'src/department/dto/DepartmentforDashboard.dto';
+import { RequestService } from 'src/relations/request/request.service';
+const moment = require('moment');
 
 @Injectable()
 export class ProductConsumer implements OnModuleInit {
@@ -15,6 +17,7 @@ export class ProductConsumer implements OnModuleInit {
         private readonly configService: ConfigService,
         private readonly shiftService: ShiftService,
         private readonly departmentService: DepartmentService,
+        private readonly requestService: RequestService,
     ) {}
 
     socketServer: Server;
@@ -45,9 +48,33 @@ export class ProductConsumer implements OnModuleInit {
         const updatedShift = { ...shift };
 
         // Update success_product
-        updatedShift.success_product =
-            +updatedShift.success_product + +value.success_product;
-
+        const request_list = await this.requestService.getAllRequestByShift_id(value.shift_code)
+        const shift_OT_time = request_list.filter((req)=>req.req_status==="ยอมรับ").length!=0?Math.max(...request_list.filter((req)=>req.req_status==="ยอมรับ").map((req)=>req.number_of_hour)):0
+        const shift_start_time = moment(`${moment(shift.date).format("YYYY-MM-DD")} ${shift.shift_time}`, "YYYY-MM-DD HH:mm:ss")
+        const shift_plan_end_time = moment(`${moment(shift.date).format("YYYY-MM-DD")} ${shift.shift_time}`, "YYYY-MM-DD HH:mm:ss").add(8,'hours')
+        const shift_OT_end_time = moment(`${moment(shift.date).format("YYYY-MM-DD")} ${shift.shift_time}`, "YYYY-MM-DD HH:mm:ss").add(8+shift_OT_time,'hours')
+        
+        //check shift started?
+        if(moment().isAfter(shift_start_time) && moment().isBefore(shift_plan_end_time)){
+            //if started
+                
+            updatedShift.success_product_in_shift_time =
+                (
+                    (+updatedShift.success_product_in_shift_time) + 
+                    (+value.success_product)
+                )
+                .toString();
+        }else if(moment().isAfter(shift_plan_end_time) && moment().isBefore(shift_OT_end_time)){
+            
+            //if on OT_time
+            updatedShift.success_product_in_OT_time =
+                (
+                    (+updatedShift.success_product_in_OT_time) + 
+                    (+value.success_product)
+                )
+                .toString();
+        }
+        
         // Update to database
         await this.shiftService.updateShift(updatedShift);
 
