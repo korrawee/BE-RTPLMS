@@ -199,7 +199,12 @@ export class RequestService {
                 const resResult: RequestDto[] = res.rows;
                 console.log('request', resResult)
                 // Trigger update on frontend
+                // To manager
                 this.sendNoticeToClient(body.mngId);
+                // To worker
+                body.accountIds.forEach((id)=>{
+                    this.sendNoticeToClient(id);
+                });
 
                 return resResult;
             })
@@ -262,7 +267,12 @@ export class RequestService {
             .then((res: dbResponse) => {
 
                 // Trigger update on frontend
+                // To manager
                 this.sendNoticeToClient(body.mngId);
+                // To worker
+                body.accountIds.forEach((id)=>{
+                    this.sendNoticeToClient(id);
+                });
                 
                 return res.rows;
             })
@@ -394,39 +404,49 @@ export class RequestService {
         }, '');
 
         let query: string;
+        // Update one request
         if (columns.length == 1 && valueArray.length == 1) {
             query = `
                 UPDATE requests
                 SET ${columns} = ${values}
-                WHERE shift_code='${shift_code}' AND account_id='${account_id}';
+                WHERE shift_code='${shift_code}' AND account_id='${account_id}'
+                RETURNING *
+                ;
             `;
         } else {
+            // Update many requests
             query = `
                 UPDATE requests
                 SET (${columns}) = (${values})
-                WHERE shift_code='${shift_code}' AND account_id='${account_id}';
+                WHERE shift_code='${shift_code}' AND account_id='${account_id}'
+                RETURNING *;
             `;
         }
         // query to check if shift_code and account id exists
-
+        console.log(query)
         const result = await this.cnn
             .query(query)
             .then((res: dbResponse) => {
                 // Trigger update on frontend
-                this.sendNoticeToClient(body.mng_id);
+                // To manager
+                const data  = res.rows.pop();
+                this.sendNoticeToClient(data.mng_id);
+                // To worker
+                this.sendNoticeToClient(data.account_id);
 
                 return {
                     message: `Updated ot request of account number ${account_id} for shift number ${shift_code}.`,
                 };
             })
             .catch((e) => {
-                throw new BadRequestException('Invalid data input');
+                throw new BadRequestException(e.message);
             });
         return result;
     }
 
     private sendNoticeToClient(target: string) {
         const topic = `${target}-request`;
+        console.log('topic: ', topic)
         return this.socketServer.emit(topic,{isUpdate: true});
     }
 }
