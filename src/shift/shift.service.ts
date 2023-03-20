@@ -118,7 +118,7 @@ export class ShiftService {
         return requestWithWorkTime;
     }
 
-    public async getShiftById(shiftCode: string) {
+    public async getShiftById(shiftCode: string): Promise<ShiftDto> {
         const query = `
             SELECT *
             FROM shifts
@@ -129,12 +129,12 @@ export class ShiftService {
         const shift: ShiftDto = await this.cnn
             .query(query)
             .then((res: dbResponse) => {
+                console.log(typeof res.rows[0].all_member)
                 return res.rows.pop();
             })
             .catch((e) => {
                 throw new BadRequestException('Invalid input Data');
             });
-        // console.log(typeof shift.success_product_in_shift_time)
         return shift;
     }
 
