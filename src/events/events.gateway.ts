@@ -9,6 +9,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { AttendanceConsumer } from 'src/kafka/consumer/attendace.consumer';
 import { ProductConsumer } from 'src/kafka/consumer/product.consumer';
+import { RequestService } from 'src/relations/request/request.service';
 
 @WebSocketGateway({
     cors: {
@@ -22,6 +23,7 @@ export class EventsGateway
         // Add new consumer here
         private readonly productConsumer: ProductConsumer,
         private readonly attendanceConsumer: AttendanceConsumer,
+        private readonly requestService: RequestService,
     ) {}
 
     @WebSocketServer()
@@ -31,6 +33,7 @@ export class EventsGateway
     afterInit() {
         this.productConsumer.socketServer = this.server;
         this.attendanceConsumer.socketServer = this.server;
+        this.requestService.socketServer = this.server;
     }
 
     handleConnection(client: Socket, ...args: any[]) {
