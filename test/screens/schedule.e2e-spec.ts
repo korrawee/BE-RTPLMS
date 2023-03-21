@@ -1,19 +1,22 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { AppModule } from '../src/app.module';
+import { AppModule } from '../../src/app.module';
 import { PostgresModule } from 'nest-postgres';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Client } from 'pg';
-import { PersonDetailDto } from '../src/screens/detail/dto/PersonDetail.dto';
+import { WorkPlanSchedule } from '../../src/screens/schedule/dto/WorkPlanSchedule.dto';
+import { OtPlanSchedule } from '../../src/screens/schedule/dto/OtPlanSchedule.dto';
 
+const moment = require('moment');
 const fs = require('fs');
+
 let app: INestApplication;
 let configService: ConfigService;
 let client: Client;
 
 const cleanUp = fs.readFileSync('sql/schema.sql', 'utf-8');
-const inertData = fs.readFileSync('sql/dev-seeds.sql', 'utf-8');
+const insertData = fs.readFileSync('sql/dev-seeds.sql', 'utf-8');
 
 //====================+
 // Setup Test Flows
@@ -44,7 +47,6 @@ beforeAll(async () => {
 
     await app.init();
     configService = app.get<ConfigService>(ConfigService);
-
     // Setup test database
     client = new Client({
         connectionString: configService.get<string>('DB_CONNECTION_STRING'),
@@ -54,7 +56,7 @@ beforeAll(async () => {
 });
 
 beforeEach(async () => {
-    await client.query(inertData);
+    await client.query(insertData);
 });
 
 afterEach(async () => {
@@ -69,27 +71,53 @@ afterAll(async () => {
 //====================+
 // Test Cases
 //====================+
-describe('DetailController (e2e)', () => {
-    describe('get data for detail page API', () => {
-        const baseURL = '/detail/shift/';
+describe('ScheduleController (e2e)', () => {
+    describe('get schedule data for work schedule page API', () => {
+        const baseURL = (accId: string) =>
+            `/schedule/accounts/${accId}/work-schedule`;
 
-        describe('given a valid shift code', () => {
+        describe('given a valid account id', () => {
             it("should get status code 200 with data in response's body", async () => {
-                const shiftCode = '1';
-                const uri = baseURL + shiftCode;
+                const accId = '1';
+                const uri = baseURL(accId);
                 const { status, body } = await request(app.getHttpServer()).get(
                     uri
                 );
-
                 expect(status).toBe(200);
-                expect(body).toBeInstanceOf(Array<PersonDetailDto>);
+                expect(body).toBeInstanceOf(Array<WorkPlanSchedule>);
             });
         });
 
-        describe('gievn an invalid shift code', () => {
+        describe('gievn an invalid account id', () => {
             it('should have status code 400', async () => {
-                const shiftCode = 'one';
-                const uri = baseURL + shiftCode;
+                const accId = 'bad-id';
+                const uri = baseURL(accId);
+
+                const { status } = await request(app.getHttpServer()).get(uri);
+                expect(status).toBe(400);
+            });
+        });
+    });
+
+    describe('get ot data for work schedule page API', () => {
+        const baseURL = (accId: string) =>
+            `/schedule/accounts/${accId}/ot-schedule`;
+
+        describe('given a valid account id', () => {
+            it("should get status code 200 with data in response's body", async () => {
+                const accId = '1';
+                const uri = baseURL(accId);
+                const { status, body } = await request(app.getHttpServer()).get(
+                    uri
+                );
+                expect(status).toBe(200);
+                expect(body).toBeInstanceOf(Array<OtPlanSchedule>);
+            });
+        });
+        describe('given an invalid account id', () => {
+            it('should have status code 400', async () => {
+                const accId = 'bad-id';
+                const uri = baseURL(accId);
 
                 const { status } = await request(app.getHttpServer()).get(uri);
 

@@ -1,13 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { AppModule } from '../src/app.module';
+import { AppModule } from '../../src/app.module';
 import { PostgresModule } from 'nest-postgres';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Client } from 'pg';
 
-import { DepartmentforDashboardDto } from '../src/department/dto/DepartmentforDashboard.dto';
-import { ShiftforDashboardDto } from '../src/shift/dto/ShiftForDashboard.dto';
+import { DepartmentforDashboardDto } from '../../src/department/dto/DepartmentforDashboard.dto';
+import { ShiftforDashboardDto } from '../../src/shift/dto/ShiftForDashboard.dto';
 
 const fs = require('fs');
 let app: INestApplication;
