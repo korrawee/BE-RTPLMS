@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { DepartmentModule } from 'src/department/department.module';
-import { RequestModule } from 'src/relations/request/request.module';
-import { WorkOnModule } from 'src/relations/work-on/work-on.module';
+import { DepartmentModule } from '../../department/department.module';
+import { RequestModule } from '../../relations/request/request.module';
+import { WorkOnModule } from '../../relations/work-on/work-on.module';
 import { ShiftModule } from '../../shift/shift.module';
 import { AttendanceConsumer } from './attendace.consumer';
 import { ConsumerService } from './consumer.service';

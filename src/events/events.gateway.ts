@@ -7,9 +7,9 @@ import {
     WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { AttendanceConsumer } from 'src/kafka/consumer/attendace.consumer';
-import { ProductConsumer } from 'src/kafka/consumer/product.consumer';
-import { RequestService } from 'src/relations/request/request.service';
+import { AttendanceConsumer } from '../kafka/consumer/attendace.consumer';
+import { ProductConsumer } from '../kafka/consumer/product.consumer';
+import { RequestService } from '../relations/request/request.service';
 
 @WebSocketGateway({
     cors: {

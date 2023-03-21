@@ -1,14 +1,14 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { KafkaMessage } from 'kafkajs';
-import { ShiftDto } from 'src/shift/dto/Shift.dto';
+import { ShiftDto } from '../../shift/dto/Shift.dto';
 import { ShiftService } from '../../shift/shift.service';
 import { ConsumerService } from './consumer.service';
 import { Server } from 'socket.io';
-import { DepartmentService } from 'src/department/department.service';
-import { DepartmentforDashboardDto } from 'src/department/dto/DepartmentforDashboard.dto';
-import { WorkOnService } from 'src/relations/work-on/work-on.service';
-import { WorkOnDto } from 'src/relations/work-on/dto/WorkOn.dto';
+import { DepartmentService } from '../../department/department.service';
+import { DepartmentforDashboardDto } from '../../department/dto/DepartmentforDashboard.dto';
+import { WorkOnService } from '../../relations/work-on/work-on.service';
+import { WorkOnDto } from '../../relations/work-on/dto/WorkOn.dto';
 
 interface IUpdateAttendance {
     account_id: string;

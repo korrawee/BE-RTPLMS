@@ -1,13 +1,13 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { KafkaMessage } from 'kafkajs';
-import { ShiftDto } from 'src/shift/dto/Shift.dto';
+import { ShiftDto } from '../../shift/dto/Shift.dto';
 import { ShiftService } from '../../shift/shift.service';
 import { ConsumerService } from './consumer.service';
 import { Server } from 'socket.io';
-import { DepartmentService } from 'src/department/department.service';
-import { DepartmentforDashboardDto } from 'src/department/dto/DepartmentforDashboard.dto';
-import { RequestService } from 'src/relations/request/request.service';
+import { DepartmentService } from '../../department/department.service';
+import { DepartmentforDashboardDto } from '../../department/dto/DepartmentforDashboard.dto';
+import { RequestService } from '../../relations/request/request.service';
 const moment = require('moment');
 
 @Injectable()

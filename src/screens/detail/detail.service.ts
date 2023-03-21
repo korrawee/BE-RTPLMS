@@ -5,7 +5,7 @@ import { AccountDto } from '../../account/dto/AccountDto';
 import { WorkOnDto } from '../../relations/work-on/dto/WorkOn.dto';
 import { WorkOnService } from '../../relations/work-on/work-on.service';
 import { PersonDetailDto } from './dto/PersonDetail.dto';
-import { ShiftService } from 'src/shift/shift.service';
+import { ShiftService } from '../../shift/shift.service';
 const moment = require('moment');
 
 @Injectable()

@@ -9,9 +9,9 @@ import { CreateLogDto } from '../../log/dto/CreateLog.dto';
 import { DepartmentforDashboardDto } from '../../department/dto/DepartmentforDashboard.dto';
 import { LogService } from '../../log/log.service';
 import { DetailsDto } from '../../log/dto/Details.dto';
-import { ShiftService } from 'src/shift/shift.service';
-import { DepartmentService } from 'src/department/department.service';
-import { ShiftDto } from 'src/shift/dto/Shift.dto';
+import { ShiftService } from '../../shift/shift.service';
+import { DepartmentService } from '../../department/department.service';
+import { ShiftDto } from '../../shift/dto/Shift.dto';
 import { UpdateWorkOnDto } from './dto/UpdateWorkOn.dto';
 @Injectable()
 export class WorkOnService {

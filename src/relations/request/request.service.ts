@@ -16,9 +16,9 @@ import { LogService } from '../../log/log.service';
 import { CreateLogDto } from '../../log/dto/CreateLog.dto';
 import { DetailsDto } from '../../log/dto/Details.dto';
 import { DepartmentforDashboardDto } from '../../department/dto/DepartmentforDashboard.dto';
-import { ShiftService } from 'src/shift/shift.service';
-import { ShiftDto } from 'src/shift/dto/Shift.dto';
-import { DepartmentService } from 'src/department/department.service';
+import { ShiftService } from '../../shift/shift.service';
+import { ShiftDto } from '../../shift/dto/Shift.dto';
+import { DepartmentService } from '../../department/department.service';
 import { Server } from 'socket.io';
 
 @Injectable()

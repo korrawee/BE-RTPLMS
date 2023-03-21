@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { ConsumerModule } from 'src/kafka/consumer/consumer.module';
-import { RequestModule } from 'src/relations/request/request.module';
+import { ConsumerModule } from '../kafka/consumer/consumer.module';
+import { RequestModule } from '../relations/request/request.module';
 import { EventsGateway } from './events.gateway';
 
 @Module({
