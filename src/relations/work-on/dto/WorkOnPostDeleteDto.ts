@@ -1,6 +1,6 @@
 export class WorkOnPostDeleteDto {
-    mngId: string;
     shiftCode: string;
     date: string;
     accountIds: Array<string>;
+    mng_id: string;
 }

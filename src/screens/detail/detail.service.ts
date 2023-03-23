@@ -65,7 +65,6 @@ export class DetailService {
 
     public async getPrediction(shift_code: string){
         const shift = await this.shiftService.getShiftById(shift_code)
-        console.log(shift)
         const request_list = await this.requestService.getAllRequestByShift_id(shift_code)
         const shift_OT_time = request_list.filter((req)=>req.req_status==="ยอมรับ").length!=0?Math.max(...request_list.filter((req)=>req.req_status==="ยอมรับ").map((req)=>req.number_of_hour)):0
         const shift_start_time = moment(`${moment(shift.date).format("YYYY-MM-DD")} ${shift.shift_time}`, "YYYY-MM-DD HH:mm:ss")

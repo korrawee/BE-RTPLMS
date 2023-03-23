@@ -129,7 +129,6 @@ export class ShiftService {
         const shift: ShiftDto = await this.cnn
             .query(query)
             .then((res: dbResponse) => {
-                console.log(typeof res.rows[0].all_member)
                 return res.rows.pop();
             })
             .catch((e) => {

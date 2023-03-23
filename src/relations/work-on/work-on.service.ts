@@ -68,7 +68,6 @@ export class WorkOnService {
                 return res.rows;
             })
             .catch((e) => {
-                console.log(e);
                 throw new BadRequestException('Invalid input data');
             });
 
@@ -112,10 +111,7 @@ export class WorkOnService {
             `;
         const res = await this.cnn
             .query(query)
-            .then((res: dbResponse) => {
-                return { status: 200, message: 'Insert Successful...' };
-            })
-            .then(async () => {
+            .then(async(res: dbResponse) => {
                 /* Create log */
                 // ==================================================
                 // ==================================================
@@ -134,14 +130,15 @@ export class WorkOnService {
                 };
 
                 const log: CreateLogDto = {
-                    mng_id: body.mngId,
-                    action: 'Add OT',
+                    mng_id: body.mng_id,
+                    action: 'Add Worker',
                     details: logDetail,
                 };
 
                 const createLog = await this.logService.createLog(log);
                 // ==================================================
                 // ==================================================
+                return { status: 200, message: 'Insert Successful...' };
             })
             .catch((e) => {
                 throw new BadRequestException('Invalid input data');
@@ -158,17 +155,13 @@ export class WorkOnService {
                     : `'${accId}',`)
             );
         }, '');
-
         const query = `DELETE FROM work_on 
             WHERE account_id IN (${values}) AND shift_code='${body.shiftCode}';
-        ;`;
+        `;
         const res = await this.cnn
             .query(query)
-            .then((res: dbResponse) => {
-                return { status: 200, message: 'Delete Successful...' };
-            })
-            .then(async () => {
-                /* Create log */
+            .then(async(res: dbResponse) => {
+                // Create log 
                 // ==================================================
                 // ==================================================
                 const shift: ShiftDto = await this.shiftService.getShiftById(
@@ -184,20 +177,22 @@ export class WorkOnService {
                     department_id: department.department_id,
                     account_id: body.accountIds,
                 };
-
                 const log: CreateLogDto = {
-                    mng_id: body.mngId,
-                    action: 'Add OT',
+                    mng_id: body.mng_id,
+                    action: 'Delete Worker',
                     details: logDetail,
                 };
 
                 const createLog = await this.logService.createLog(log);
                 // ==================================================
                 // ==================================================
+
+                return { status: 200, message: 'Delete Successful...' };
             })
             .catch((e) => {
                 throw new BadRequestException('Invalid input data');
             });
+        return res;
     }
 
     public async getAccountIdSortByCheckIn(
