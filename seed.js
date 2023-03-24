@@ -31,7 +31,7 @@ const mawhang_data = {
         race: "Asian",
         email: "Mawhangzaa@kingkongkhaw.com",
     },
-    mng_id: '29-6308534'
+    mng_id: '29-6308534',
 }
 
 const seed_DB = async () => {
@@ -245,7 +245,7 @@ const seed_DB = async () => {
     const requestRawData = fs.readFileSync(`${dataset_dir_path}/requests.json`);
     const requestData = JSON.parse(requestRawData);
     const insertRequest = async () => {
-        const insertWork_onQuery = `INSERT INTO requests VALUES (
+        const insertRequestQuery = `INSERT INTO requests VALUES (
                                 $1,
                                 $2,
                                 cast($3 as date),
@@ -260,8 +260,9 @@ const seed_DB = async () => {
                               $3,
                               to_timestamp($4, 'MM/DD/YYYY')
                             );`;
+        let couter = 1
         for (const row_data of requestData) {
-            await client.query(insertWork_onQuery, [
+            await client.query(insertRequestQuery, [
                 row_data.shift_code,
                 row_data.account_id,
                 row_data.date,
@@ -283,6 +284,17 @@ const seed_DB = async () => {
                 },
                 row_data.date,
             ]);
+            if(parseInt(row_data.shift_code)%18 == 1 && couter++ < 8){
+                await client.query(insertRequestQuery,[
+                    row_data.shift_code,
+                    mawhang_data.account_id,
+                    row_data.date,
+                    randomInt(1,4),
+                    moment(row_data.date,'MM/DD/YYYY').isBefore(moment())? couter%3==1?"ปฏิเสธ":"ยอมรับ" :'รอดำเนินการ',
+                    mawhang_data.mng_id,
+                    row_data.date
+                ])
+            }
         }
     };
 

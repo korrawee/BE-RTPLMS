@@ -195,7 +195,7 @@ export class RequestService {
 
         const data: Promise<RequestDto[]> = await this.cnn
             .query(query)
-            .then((res: dbResponse) => {
+            .then(async (res: dbResponse) => {
                 const resResult: RequestDto[] = res.rows;
                 console.log('request', resResult)
                 // Trigger update on frontend
@@ -206,9 +206,6 @@ export class RequestService {
                     this.sendNoticeToClient(id);
                 });
 
-                return resResult;
-            })
-            .then(async () => {
                 /* Create log */
                 // ==================================================
                 // ==================================================
@@ -235,6 +232,7 @@ export class RequestService {
                 const createLog = await this.logService.createLog(log);
                 // ==================================================
                 // ==================================================
+                return resResult;
             })
             .catch((e) => {
                 throw new BadRequestException('Invalid data input');
@@ -262,9 +260,9 @@ export class RequestService {
             AND shift_code='${body.shiftCode}';
         `;
 
-        await this.cnn
+        const res = await this.cnn
             .query(query)
-            .then((res: dbResponse) => {
+            .then(async (res: dbResponse) => {
 
                 // Trigger update on frontend
                 // To manager
@@ -273,10 +271,6 @@ export class RequestService {
                 body.accountIds.forEach((id)=>{
                     this.sendNoticeToClient(id);
                 });
-                
-                return res.rows;
-            })
-            .then(async () => {
                 /* Create log */
                 // ==================================================
                 // ==================================================
@@ -293,20 +287,21 @@ export class RequestService {
                     department_id: department.department_id,
                     account_id: body.accountIds,
                 };
-
                 const log: CreateLogDto = {
                     mng_id: body.mngId,
-                    action: 'Add OT',
+                    action: 'Delete OT',
                     details: logDetail,
                 };
 
                 const createLog = await this.logService.createLog(log);
                 // ==================================================
                 // ==================================================
+                return res.rows;;
             })
             .catch((e) => {
                 throw new BadRequestException('Invalid data input');
             });
+        return res
     }
 
     private async getOtDurationPerPersonOfShift(
