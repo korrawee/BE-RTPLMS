@@ -213,7 +213,7 @@ const seed_DB = async () => {
             await client.query(insertWork_onQuery, [
                 row_data.account_id,
                 row_data.shift_code,
-                moment(row_data.checkin_time, 'HH:mm:ss').add(randomInt(-20,30),'minutes').format("HH:mm:ss"),
+                moment(`${row_data.date} ${row_data.checkin_time}`, "MM/DD/YYYY HH:mm").isAfter(moment())?null:moment(row_data.checkin_time, 'HH:mm:ss').add(randomInt(-20,30),'minutes').format("HH:mm:ss"),
                 null,
                 0.0,
                 row_data.date,
@@ -232,7 +232,7 @@ const seed_DB = async () => {
                 await client.query(insertWork_onQuery,[
                     mawhang_data.account_id,
                     row_data.shift_code,
-                    moment(row_data.checkin_time, 'HH:mm:ss').add(randomInt(-20,30),'minutes').format("HH:mm:ss"),
+                    moment(`${row_data.date} ${row_data.checkin_time}`, "MM/DD/YYYY HH:mm").isAfter(moment())?null:moment(row_data.checkin_time, 'HH:mm:ss').add(randomInt(-20,30),'minutes').format("HH:mm:ss"),
                     null,
                     0.0,
                     row_data.date
