@@ -6,6 +6,7 @@ export class ShiftDto {
     success_product_in_shift_time: string;
     success_product_in_OT_time: string;
     ideal_performance: string;
+    actual_performance: number;
     all_member: number;
     checkin_member: number;
     department_id: string;
