@@ -8,4 +8,5 @@ export class ShiftforDashboardDto {
     allMember: number;
     checkInMember: number;
     idealPerformance: number;
+    actual_performance: number;
 }

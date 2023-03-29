@@ -80,6 +80,11 @@ export class ShiftService {
                             allMember: shift.all_member,
                             checkInMember: shift.checkin_member,
                             idealPerformance: shift.ideal_performance,
+                            actual_performance: 
+                            moment(`${moment(shift.date).format("YYYY-MM-DD")} ${shift.shift_time}`,"YYYY-MM-DD HH:mm:ss").add(8,"hours").isAfter(moment())?
+                                shift.success_product_in_shift_time/moment.duration(moment().diff(moment(`${moment(shift.date).format("YYYY-MM-DD")} ${shift.shift_time}`,"YYYY-MM-DD HH:mm:ss"))).asHours()
+                            :
+                                shift.success_product_in_ot_time/moment.duration(moment().diff(moment(`${moment(shift.date).format("YYYY-MM-DD")} ${shift.shift_time}`,"YYYY-MM-DD HH:mm:ss").add(8,"hours"))).asHours(),
                         };
 
                         return res;
@@ -128,9 +133,26 @@ export class ShiftService {
 
         const shift: ShiftDto = await this.cnn
             .query(query)
-            .then((res: dbResponse) => {
-                console.log(typeof res.rows[0].all_member)
-                return res.rows.pop();
+            .then(async (res: dbResponse) => {
+                const shift_data = await res.rows[0]
+                const formatted_shift = {
+                    shift_code: shift_data.shift_code,
+                    date: shift_data.date,
+                    shift_time: shift_data.shift_time,
+                    product_target: shift_data.product_target,
+                    success_product_in_shift_time: shift_data.success_product_in_shift_time,
+                    success_product_in_OT_time: shift_data.success_product_in_ot_time,
+                    ideal_performance: shift_data.ideal_performance,
+                    actual_performance: 
+                    moment(`${moment(shift_data.date).format("YYYY-MM-DD")} ${shift_data.shift_time}`,"YYYY-MM-DD HH:mm:ss").add(8,"hours").isAfter(moment())?
+                        parseFloat(shift_data.success_product_in_shift_time)/moment.duration(moment().diff(moment(`${moment(shift_data.date).format("YYYY-MM-DD")} ${shift_data.shift_time}`,"YYYY-MM-DD HH:mm:ss"))).asHours()
+                    :
+                        parseFloat(shift_data.success_product_in_ot_time)/moment.duration(moment().diff(moment(`${moment(shift_data.date).format("YYYY-MM-DD")} ${shift_data.shift_time}`,"YYYY-MM-DD HH:mm:ss").add(8,"hours"))).asHours(),
+                    all_member: shift_data.all_member,
+                    checkin_member: shift_data.checkin_member,
+                    department_id: shift_data.department_id,
+                }
+                return formatted_shift;
             })
             .catch((e) => {
                 throw new BadRequestException('Invalid input Data');
