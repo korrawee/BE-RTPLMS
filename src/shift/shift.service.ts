@@ -35,9 +35,9 @@ export class ShiftService {
                             (res) => res
                         );
                     })
-                    .catch((error) => {
-                        console.error(error);
-                        throw new BadRequestException('Invalid input data');
+                    .catch((e) => {
+                        console.error(e);
+                        throw new BadRequestException(e.message);
                     });
                 return shiftInDepartment;
             })
@@ -89,9 +89,9 @@ export class ShiftService {
 
                         return res;
                     })
-                    .catch((error) => {
-                        console.error(error);
-                        throw new BadRequestException('Invalid input data');
+                    .catch((e) => {
+                        console.error(e);
+                        throw new BadRequestException(e.message);
                     });
 
                 return shift;
@@ -117,7 +117,7 @@ export class ShiftService {
                 return res.rows.pop();
             })
             .catch((e) => {
-                throw new BadRequestException('Invalid input Data');
+                throw new BadRequestException(e.message);
             });
 
         return requestWithWorkTime;
@@ -155,7 +155,7 @@ export class ShiftService {
                 return formatted_shift;
             })
             .catch((e) => {
-                throw new BadRequestException('Invalid input Data');
+                throw new BadRequestException(e.message);
             });
         return shift;
     }
@@ -191,7 +191,7 @@ export class ShiftService {
                 return shift;
             })
             .catch((e) => {
-                throw new BadRequestException('Invalid input Data');
+                throw new BadRequestException(e.message);
             });
 
         return shift;

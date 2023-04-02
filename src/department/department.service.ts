@@ -18,9 +18,9 @@ export class DepartmentService {
         .then((res: dbResponse) => {
             return res.rows;
         })
-        .catch((error: any) => {
-            console.error(error);
-            throw new BadRequestException(error.message);
+        .catch((e: any) => {
+            console.error(e);
+            throw new BadRequestException(e.message);
         });
         return department;
     }
@@ -37,9 +37,9 @@ export class DepartmentService {
             .then((res: dbResponse) => {
                 return res.rows.pop();
             })
-            .catch((error: any) => {
-                console.error(error);
-                throw new BadRequestException(error.message);
+            .catch((e: any) => {
+                console.error(e);
+                throw new BadRequestException(e.message);
             });
 
         return department;

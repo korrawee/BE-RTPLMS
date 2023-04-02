@@ -10,7 +10,7 @@ import { DeleteOtRequest } from './dto/DeleteOtRequest.dto';
 import { AccountService } from '../../account/account.service';
 import { AccountDto } from '../../account/dto/AccountDto';
 import { WorkOnDto } from '../work-on/dto/WorkOn.dto';
-import { isNumber } from 'class-validator';
+import { isDate, isNumber, isString } from 'class-validator';
 import { UpdateOtRequestDto } from './dto/UpdateOtRequest.dto';
 import { LogService } from '../../log/log.service';
 import { CreateLogDto } from '../../log/dto/CreateLog.dto';
@@ -53,7 +53,7 @@ export class RequestService {
     }
 
     public async getAllRequestByShift_id(
-        shiftCode: string,
+        shiftCode: string
     ): Promise<RequestDto[]> {
         const query = `SELECT * FROM requests WHERE shift_code='${shiftCode}';`;
 
@@ -76,21 +76,59 @@ export class RequestService {
         let accounts: AccountDto[] = [];
         let otDurationPerPerson: number;
 
+        // validate body
+        if (!isNumber(body.quantity))
+            throw new BadRequestException('quantity must be an integer');
+        if (!isDate(new Date(body.date)))
+            throw new BadRequestException('wrong date format');
+
         switch (body.method) {
+
             case 'assignByCheckin':
-                accounts = await this.workOnService.getAccountIdSortByCheckIn(
-                    body.shiftCode,
-                    body.quantity
-                );
-                otDurationPerPerson = await this.getOtDurationPerPersonOfShift(
-                    body.shiftCode,
-                    accounts
-                );
+                switch (body.unit) {
+                    case 'hour':
+                        // find all worker in shift
+                        const allAccounts: AccountDto[] = await this.workOnService.getAccountIdSortByCheckIn(
+                            body.shiftCode
+                        );
+
+                        // calculate minimun worker to meet given ot duration
+                        for(let i=1; i <= allAccounts.length; i++){
+                            const selectedAccount: AccountDto[] = allAccounts.slice(0, i);
+                            const otDurationPerPerson = await this.getOtDurationPerPersonOfShift(
+                                body.shiftCode,
+                                selectedAccount
+                            );
+                                if(otDurationPerPerson <= body.quantity){
+                                    accounts = [...selectedAccount];
+                                    break;
+                                }
+                        }
+                        throw new BadRequestException(`insufficient OT duration (${body.quantity} hr.)`)
+                    
+                    case 'person':
+                        accounts = await this.workOnService.getAccountIdSortByCheckIn(
+                            body.shiftCode,
+                            body.quantity
+                        );
+        
+                        // handle empty worker in shift
+                        if (accounts.length == 0)
+                            throw new BadRequestException('no worker in shift');
+        
+                        otDurationPerPerson = await this.getOtDurationPerPersonOfShift(
+                            body.shiftCode,
+                            accounts
+                        );
+                        break
+                    default:
+                        throw new BadRequestException(`no unit ${body.unit}`);
+                }
 
                 // Check if ot duration is took too long
                 if (otDurationPerPerson > 4) {
                     throw new BadRequestException(
-                        'Invalid worker quantity (too many OT hours)'
+                        `Invalid worker quantity (too many OT hours, ${otDurationPerPerson} hr.)`
                     );
                 }
 
@@ -110,22 +148,23 @@ export class RequestService {
             case 'calHour':
                 accounts = await this.accountService.findByIds(body.accountIds);
 
+                // handle empty worker in shift
+                if (accounts.length == 0)
+                    throw new BadRequestException('no worker in shift');
+
+                accountIdsLastIndex = accounts?.length - 1;
                 otDurationPerPerson = await this.getOtDurationPerPersonOfShift(
                     body.shiftCode,
                     accounts
                 );
-                const performances = accounts.reduce((performance, accObj) => {
-                    return performance + +accObj.performance;
-                }, 0);
-                // Check if ot duration is took too long
 
+                // Check if ot duration is took too long
                 if (otDurationPerPerson > 4) {
                     throw new BadRequestException(
-                        'Invalid worker quantity (too many OT hours)'
+                        `Invalid worker quantity (too many OT hours, ${otDurationPerPerson} hr.)`
                     );
                 }
 
-                accountIdsLastIndex = accounts?.length - 1;
                 values = accounts.reduce((str, account, currentIndex) => {
                     const appendStr = `('${body.shiftCode}','${account.account_id}', '${body.date}', ${otDurationPerPerson}, '${body.mngId}')`;
                     return (
@@ -145,6 +184,11 @@ export class RequestService {
                         body.shiftCode,
                         body.date
                     );
+
+                // handle empty worker in shift
+                if (workerInShift.length == 0)
+                    throw new BadRequestException('no worker in shift');
+
                 const workOnLastIndex = workerInShift.length - 1;
                 values = workerInShift.reduce((str, workOn, currentIndex) => {
                     const appendStr = `('${body.shiftCode}','${workOn.account_id}', '${body.date}', ${body.quantity}, '${body.mngId}')`;
@@ -176,33 +220,19 @@ export class RequestService {
                 break;
 
             default:
-                accountIdsLastIndex = body.accountIds.length - 1;
-                values = body.accountIds.reduce(
-                    (str, accountId, currentIndex) => {
-                        const appendStr = `('${body.shiftCode}','${accountId}', '${body.date}', ${body.quantity}, '${body.mngId}')`;
-                        return (
-                            str +
-                            (accountIdsLastIndex == currentIndex
-                                ? appendStr
-                                : appendStr + ',')
-                        );
-                    },
-                    ''
-                );
-                query = `INSERT INTO requests(shift_code, account_id, date, number_of_hour, mng_id) VALUES${values} RETURNING *;`;
-                break;
+                throw new BadRequestException(`No method ${body.method}`);
         }
 
         const data: Promise<RequestDto[]> = await this.cnn
             .query(query)
             .then(async (res: dbResponse) => {
                 const resResult: RequestDto[] = res.rows;
-                console.log('request', resResult)
+                console.log('request', resResult);
                 // Trigger update on frontend
                 // To manager
                 this.sendNoticeToClient(body.mngId);
                 // To worker
-                body.accountIds.forEach((id)=>{
+                body.accountIds.forEach((id) => {
                     this.sendNoticeToClient(id);
                 });
 
@@ -235,7 +265,8 @@ export class RequestService {
                 return resResult;
             })
             .catch((e) => {
-                throw new BadRequestException('Invalid data input');
+                console.error(e);
+                throw new BadRequestException(e.message);
             });
         return data;
     }
@@ -263,12 +294,11 @@ export class RequestService {
         const res = await this.cnn
             .query(query)
             .then(async (res: dbResponse) => {
-
                 // Trigger update on frontend
                 // To manager
                 this.sendNoticeToClient(body.mngId);
                 // To worker
-                body.accountIds.forEach((id)=>{
+                body.accountIds.forEach((id) => {
                     this.sendNoticeToClient(id);
                 });
                 /* Create log */
@@ -296,21 +326,25 @@ export class RequestService {
                 const createLog = await this.logService.createLog(log);
                 // ==================================================
                 // ==================================================
-                return res.rows;;
+                return res.rows;
             })
             .catch((e) => {
                 throw new BadRequestException('Invalid data input');
             });
-        return res
+        return res;
     }
 
     private async getOtDurationPerPersonOfShift(
         shiftCode: string,
         accounts: AccountDto[]
     ): Promise<number> {
+        // validate parameter
+        if (!isString(shiftCode))
+            throw new BadRequestException('shift code must be string');
+
         const accountLastIndex = accounts.length - 1;
         const productRemainQuery = `
-            SELECT product_target - success_product AS product_remain 
+            SELECT product_target - (success_product_in_shift_time + success_product_in_OT_time) AS product_remain 
             FROM shifts 
             WHERE shift_code='${shiftCode}';
         `;
@@ -332,21 +366,29 @@ export class RequestService {
         const productRemain: number = await this.cnn
             .query(productRemainQuery)
             .then((res: dbResponse) => {
+                // handle empty result
+                if (res.rows.length == 0)
+                    throw new BadRequestException('No product remain');
+
                 const resResult: { product_remain: string } = res.rows.pop();
                 return resResult.product_remain;
             })
             .catch((e) => {
-                throw new BadRequestException('Invalid data input');
+                console.error(e);
+                throw new BadRequestException(e.message);
             });
 
         const sumPerformance: number = await this.cnn
             .query(sumPerformanceQuery)
             .then((res: dbResponse) => {
+                if (res.rows.length == 0)
+                    throw new BadRequestException('No sum of performances');
                 const resResult: { sum: string } = res.rows.pop();
                 return resResult.sum;
             })
             .catch((e) => {
-                throw new BadRequestException('Invalid data input');
+                console.error(e);
+                throw new BadRequestException(e.message);
             });
 
         // calulate needed ot duration
@@ -418,13 +460,13 @@ export class RequestService {
             `;
         }
         // query to check if shift_code and account id exists
-        console.log(query)
+        console.log(query);
         const result = await this.cnn
             .query(query)
             .then((res: dbResponse) => {
                 // Trigger update on frontend
                 // To manager
-                const data  = res.rows.pop();
+                const data = res.rows.pop();
                 this.sendNoticeToClient(data.mng_id);
                 // To worker
                 this.sendNoticeToClient(data.account_id);
@@ -441,7 +483,7 @@ export class RequestService {
 
     private sendNoticeToClient(target: string) {
         const topic = `${target}-request`;
-        console.log('topic: ', topic)
-        return this.socketServer.emit(topic,{isUpdate: true});
+        console.log('topic: ', topic);
+        return this.socketServer.emit(topic, { isUpdate: true });
     }
 }

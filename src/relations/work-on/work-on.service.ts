@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectClient } from 'nest-postgres';
 import { Client } from 'pg';
 import { dbResponse } from '../../db/db.response.type';
@@ -13,6 +13,7 @@ import { ShiftService } from '../../shift/shift.service';
 import { DepartmentService } from '../../department/department.service';
 import { ShiftDto } from '../../shift/dto/Shift.dto';
 import { UpdateWorkOnDto } from './dto/UpdateWorkOn.dto';
+import { isNumber, isString } from 'class-validator';
 @Injectable()
 export class WorkOnService {
     constructor(
@@ -69,7 +70,7 @@ export class WorkOnService {
                 return res.rows;
             })
             .catch((e) => {
-                throw new BadRequestException('Invalid input data');
+                throw new BadRequestException(e.message);
             });
 
         return freeWorkers;
@@ -86,7 +87,7 @@ export class WorkOnService {
                 return res.rows;
             })
             .catch((e) => {
-                throw new BadRequestException('Invalid input data');
+                throw new BadRequestException(e.message);
             });
 
         return data;
@@ -112,7 +113,7 @@ export class WorkOnService {
             `;
         const res = await this.cnn
             .query(query)
-            .then(async(res: dbResponse) => {
+            .then(async (res: dbResponse) => {
                 /* Create log */
                 // ==================================================
                 // ==================================================
@@ -142,7 +143,7 @@ export class WorkOnService {
                 return { status: 200, message: 'Insert Successful...' };
             })
             .catch((e) => {
-                throw new BadRequestException('Invalid input data');
+                throw new BadRequestException(e.message);
             });
         return res;
     }
@@ -161,8 +162,8 @@ export class WorkOnService {
         `;
         const res = await this.cnn
             .query(query)
-            .then(async(res: dbResponse) => {
-                // Create log 
+            .then(async (res: dbResponse) => {
+                // Create log
                 // ==================================================
                 // ==================================================
                 const shift: ShiftDto = await this.shiftService.getShiftById(
@@ -191,19 +192,25 @@ export class WorkOnService {
                 return { status: 200, message: 'Delete Successful...' };
             })
             .catch((e) => {
-                throw new BadRequestException('Invalid input data');
+                throw new BadRequestException(e.message);
             });
         return res;
     }
 
     public async getAccountIdSortByCheckIn(
         shiftId: string,
-        quantity: number
+        quantity?: number
     ): Promise<FilteredAccountDto[]> {
+        // validate parameters
+        if (!isString(shiftId))
+            throw new BadRequestException('shift id must be a string');
+        if (!isNumber(quantity))
+            throw new BadRequestException('quantity must be a number');
+
         const query = `SELECT account_id from work_on 
             WHERE shift_code='${shiftId}' 
             ORDER BY checkin_time
-            LIMIT ${quantity};`;
+            LIMIT ${quantity || '*'};`;
 
         const queryData: Promise<FilteredAccountDto[]> = await this.cnn
             .query(query)
@@ -212,7 +219,8 @@ export class WorkOnService {
                 return data;
             })
             .catch((e) => {
-                return new BadRequestException('Invalid data input');
+                console.error(e);
+                return new BadRequestException(e);
             });
 
         return queryData;
@@ -235,10 +243,13 @@ export class WorkOnService {
             AND shift_code='${body.shift_code}'
             RETURNING *
         ;`;
-        console.log(query)
+        console.log(query);
         const workOn: WorkOnDto = await this.cnn
             .query(query)
             .then((res: dbResponse) => {
+                // handle empty result
+                if(res.rows.length == 0) throw new BadRequestException('Work on not found')
+
                 const data: WorkOnDto = res.rows.pop();
                 return data;
             })
@@ -248,21 +259,21 @@ export class WorkOnService {
 
         return workOn;
     }
-    async getOneWorkOn(accId: string, shiftCode: string){
+    async getOneWorkOn(accId: string, shiftCode: string) {
         const query = `
             SELECT * 
             FROM work_on
             WHERE shift_code='${shiftCode}' AND account_id='${accId}';
         `;
-        
-        console.log(query)
+
+        console.log(query);
         const data = await this.cnn
             .query(query)
             .then((res: dbResponse) => {
                 return res.rows.pop();
             })
             .catch((e) => {
-                throw new BadRequestException('Invalid input data');
+                throw new BadRequestException(e.message);
             });
 
         return data;

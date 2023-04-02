@@ -35,9 +35,9 @@ export class AccountService {
             .then((res: dbResponse) => {
                 return res.rows;
             })
-            .catch((error) => {
-                console.error(error.detail);
-                throw new BadRequestException('Invalid input data');
+            .catch((e) => {
+                console.error(e.detail);
+                throw new BadRequestException(e.message);
             });
 
         return data;
@@ -52,16 +52,14 @@ export class AccountService {
                 }
                 return res.rows;
             })
-            .catch((error: Error) => {
-                console.error(error);
-                throw new BadRequestException(error.message);
+            .catch((e: Error) => {
+                console.error(e);
+                throw new BadRequestException(e.message);
             });
 
         return data;
     }
     public async find(id: string) {
-        if (!Number.isInteger(parseInt(id)))
-            throw new BadRequestException('account id must be an integer');
         let data: any;
         await this.cnn
             .query(`SELECT * FROM accounts WHERE account_id='${id}';`)
@@ -71,9 +69,9 @@ export class AccountService {
                 }
                 data = res.rows.pop();
             })
-            .catch((error: any) => {
-                console.error(error);
-                throw new BadRequestException(error.message);
+            .catch((e: any) => {
+                console.error(e);
+                throw new BadRequestException(e.message);
             });
 
         return data;
@@ -82,10 +80,6 @@ export class AccountService {
     public async findByIds(accountIds: string[]) {
         const newAccountIds = accountIds.reduce(
             (str: string, id: string, index: number) => {
-                if (!Number.isInteger(parseInt(id)))
-                    throw new BadRequestException(
-                        'account id must be an integer'
-                    );
                 return (
                     str + ` '${id}'${index != accountIds.length - 1 ? ',' : ''}`
                 );
@@ -99,9 +93,9 @@ export class AccountService {
             .then((res: dbResponse) => {
                 return res.rows;
             })
-            .catch((error: any) => {
-                console.error(error);
-                throw new BadRequestException(error.message);
+            .catch((e: any) => {
+                console.error(e);
+                throw new BadRequestException(e.message);
             });
         return data;
     }
@@ -137,9 +131,9 @@ export class AccountService {
 
                 return res.rows.pop();
             })
-            .catch((error: any) => {
-                console.error(error);
-                throw new BadRequestException('Invalid input data');
+            .catch((e: any) => {
+                console.error(e);
+                throw new BadRequestException(e.message);
             });
 
         return data;

@@ -30,7 +30,7 @@ export class LogService {
                 return res.rows;
             })
             .catch((e) => {
-                throw new BadGatewayException('Invalid Input Data');
+                throw new BadGatewayException(e.message);
             });
 
         return logs;
@@ -65,7 +65,7 @@ export class LogService {
                 return res.rows;
             })
             .catch((e) => {
-                throw new BadGatewayException('Invalid Input Data');
+                throw new BadGatewayException(e.message);
             });
 
         return logs;
@@ -86,7 +86,7 @@ export class LogService {
                 return { message: `Deleted log number ${logId}.` };
             })
             .catch((e) => {
-                throw new BadGatewayException('Invalid Input Data');
+                throw new BadGatewayException(e.message);
             });
 
         return res;
