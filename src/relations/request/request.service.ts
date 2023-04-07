@@ -76,7 +76,6 @@ export class RequestService {
         let accountIdsLastIndex: number;
         let accounts: AccountDto[] = [];
         let otDurationPerPerson: number;
-        console.log(body)
 
         // validate body
         if (!isNumber(body.quantity)&&body.method!="manual_select_worker"&&body.method!="assignEveryone")
@@ -181,27 +180,35 @@ export class RequestService {
                 break;
 
             case 'assignEveryone':
-                const workerInShift: WorkOnDto[] =
-                    await this.workOnService.getWorkOnOfShift(
-                        body.shiftCode,
-                        body.date
-                    );
+                accounts = await this.accountService.findByIds(body.accountIds);
 
                 // handle empty worker in shift
-                if (workerInShift.length == 0)
+                if (accounts.length == 0)
                     throw new BadRequestException('no worker in shift');
 
-                const workOnLastIndex = workerInShift.length - 1;
-                values = workerInShift.reduce((str, workOn, currentIndex) => {
-                    const appendStr = `('${body.shiftCode}','${workOn.account_id}', '${body.date}', ${body.quantity}, '${body.mngId}')`;
+                accountIdsLastIndex = accounts?.length - 1;
+                otDurationPerPerson = await this.getOtDurationPerPersonOfShift(
+                    body.shiftCode,
+                    accounts
+                );
+
+                // Check if ot duration is took too long
+                if (otDurationPerPerson > 4) {
+                    throw new BadRequestException(
+                        `Too many OT hours(${otDurationPerPerson} hr. / worker). Please select more workers`
+                    );
+                }
+                values = accounts.reduce((str, account, currentIndex) => {
+                    const appendStr = `('${body.shiftCode}','${account.account_id}', '${body.date}', ${otDurationPerPerson}, '${body.mngId}')`;
                     return (
                         str +
-                        (workOnLastIndex == currentIndex
+                        (accountIdsLastIndex == currentIndex
                             ? appendStr
                             : appendStr + ',')
                     );
                 }, '');
                 query = `INSERT INTO requests(shift_code, account_id, date, number_of_hour, mng_id) VALUES${values} RETURNING *;`;
+
                 break;
 
             case 'manual':
@@ -229,7 +236,6 @@ export class RequestService {
             .query(query)
             .then(async (res: dbResponse) => {
                 const resResult: RequestDto[] = res.rows;
-                console.log('request', resResult);
                 // Trigger update on frontend
                 // To manager
                 this.sendNoticeToClient(body.mngId);
@@ -416,8 +422,6 @@ export class RequestService {
             });
 
         // // calulate needed ot duration
-        console.log(await productRemain())
-        console.log(await productRemain()/sumPerformance)
         return await productRemain()/sumPerformance;
     }
 
@@ -483,7 +487,6 @@ export class RequestService {
             `;
         }
         // query to check if shift_code and account id exists
-        console.log(query);
         const result = await this.cnn
             .query(query)
             .then((res: dbResponse) => {
