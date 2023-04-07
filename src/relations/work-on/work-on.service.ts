@@ -243,7 +243,6 @@ export class WorkOnService {
             AND shift_code='${body.shift_code}'
             RETURNING *
         ;`;
-        console.log(query);
         const workOn: WorkOnDto = await this.cnn
             .query(query)
             .then((res: dbResponse) => {
