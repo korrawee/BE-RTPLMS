@@ -115,7 +115,7 @@ export class DetailService {
                     //formular is (Number of success product since shift time started)/(Time used)
                     const actual_performance = (parseFloat(shift.success_product_in_shift_time)/(moment.duration(moment().diff(shift_start_time)).asHours()))
                     //formular is (Predic product)+(Success product from work plan)
-                    const work_plan_product_predicted = (actual_performance*(moment.duration(shift_plan_end_time.diff(moment())).asHours()))+parseFloat(shift.success_product_in_shift_time)
+                    const work_plan_product_predicted = (actual_performance*(moment.duration(shift_plan_end_time.diff(moment())).asHours()))+parseFloat(shift.success_product_in_shift_time)+ideal_OT_predic_product
 
                     if(work_plan_product_predicted>=parseFloat(shift.product_target)){
                     return {prediction:'สำเร็จในเวลา'}
