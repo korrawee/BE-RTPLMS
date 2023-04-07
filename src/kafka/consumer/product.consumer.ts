@@ -45,6 +45,7 @@ export class ProductConsumer implements OnModuleInit {
         const value: { shift_code: string; success_product: number } =
             JSON.parse(message.value.toString());
         const shift: ShiftDto = await this.shiftService.getShiftById(value.shift_code);
+        delete shift.actual_performance;
         const updatedShift = { ...shift };
 
         // Update success_product

@@ -17,6 +17,7 @@ import { LoginModule } from './screens/login/login.module';
 import { DepartmentModule } from './department/department.module';
 import { DashboardModule } from './screens/dashboard/dashboard.module';
 import { EventsModule } from './events/events.module';
+import { KafkaModule } from './kafka/kafka.module';
 
 @Module({
     imports: [
@@ -54,7 +55,7 @@ import { EventsModule } from './events/events.module';
         LogModule,
         LogScreenModule,
         LoginModule,
-        // KafkaModule,
+        KafkaModule,
         EventsModule,
     ],
     controllers: [AppController],
