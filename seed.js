@@ -180,11 +180,11 @@ const seed_DB = async () => {
                 row_data.date,
                 row_data.shift_time,
                 1000,
-                500.0,
+                moment().isBefore(moment(`${row_data.date} ${row_data.shift_time}`, "M/D/YYYY HH:mm"))?0:moment().isAfter(moment(`${row_data.date} ${row_data.shift_time}`, "M/D/YYYY HH:mm").add(8,'hours'))?randomInt(900,1050):randomInt(10,300),
                 0.0,
-                50.0,
+                70.0,
                 7,
-                5,
+                moment().isBefore(moment(`${row_data.date} ${row_data.shift_time}`, "M/D/YYYY HH:mm"))?0:moment().isAfter(moment(`${row_data.date} ${row_data.shift_time}`, "M/D/YYYY HH:mm").add(8,'hours'))?7:6,
                 row_data.department_id,
             ]);
         }
@@ -213,8 +213,8 @@ const seed_DB = async () => {
             await client.query(insertWork_onQuery, [
                 row_data.account_id,
                 row_data.shift_code,
-                moment(`${row_data.date} ${row_data.checkin_time}`, "MM/DD/YYYY HH:mm").isAfter(moment())?null:moment(row_data.checkin_time, 'HH:mm:ss').add(randomInt(-20,30),'minutes').format("HH:mm:ss"),
-                moment(`${row_data.date} ${row_data.checkin_time}`, "MM/DD/YYYY HH:mm").add(8,"hours").isBefore(moment())?moment(row_data.checkin_time, 'HH:mm:ss').add(8,"hours").add(randomInt(-5,10),'minutes').format("HH:mm:ss"):null,
+                moment(`${row_data.date} ${row_data.checkin_time}`, "M/D/YYYY HH:mm").isAfter(moment())?null: (row_data.date===moment().format("M/D/YYYY")&&couter<127)?null:moment(row_data.checkin_time, 'HH:mm:ss').add(randomInt(-20,30),'minutes').format("HH:mm:ss"),
+                moment(`${row_data.date} ${row_data.checkin_time}`, "M/D/YYYY HH:mm").add(8,"hours").isBefore(moment())?moment(row_data.checkin_time, 'HH:mm:ss').add(8,"hours").add(randomInt(-5,10),'minutes').format("HH:mm:ss"):null,
                 0.0,
                 row_data.date,
             ]);
@@ -228,7 +228,7 @@ const seed_DB = async () => {
                 },
                 row_data.date,
             ]);
-            if(parseInt(row_data.shift_code)%18 == 1 && couter++ < 8){
+            if(parseInt(row_data.shift_code)%18 == 1 && couter < 8){
                 await client.query(insertWork_onQuery,[
                     mawhang_data.account_id,
                     row_data.shift_code,
@@ -238,6 +238,7 @@ const seed_DB = async () => {
                     row_data.date
                 ])
             }
+            couter++
         }
     };
 
