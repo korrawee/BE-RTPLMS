@@ -58,7 +58,8 @@ export class AttendanceConsumer implements OnModuleInit {
             // Update attendace
             const workOnUpdated: WorkOnDto = await this.workOnService.update(payload);
             const shift: ShiftDto = await this.shiftService.getShiftById(workOnUpdated.shift_code);
-    
+            delete shift.actual_performance;
+            
             if(!workOnOld.checkin_time && workOnUpdated.checkin_time){
                 await this.shiftService.updateShift({...shift, checkin_member: shift.checkin_member + 1});
             }else{
