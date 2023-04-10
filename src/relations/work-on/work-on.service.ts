@@ -265,7 +265,6 @@ export class WorkOnService {
             WHERE shift_code='${shiftCode}' AND account_id='${accId}';
         `;
 
-        console.log(query);
         const data = await this.cnn
             .query(query)
             .then((res: dbResponse) => {

@@ -139,7 +139,7 @@ export class RequestService {
                 // Check if ot duration is took too long
                 if (otDurationPerPerson > 4 || otDurationPerPerson < 0) {
                     throw new BadRequestException(
-                        `Too many OT hours(${otDurationPerPerson} hr.). Please select more workers`
+                        `Too many OT hours(${`${Math.floor(otDurationPerPerson)} ชม. ${((otDurationPerPerson-Math.floor(otDurationPerPerson))*60).toFixed(0)} นาที`} hr.). Please select more workers`
                     );
                 }
 
@@ -172,7 +172,7 @@ export class RequestService {
                 // Check if ot duration is took too long
                 if (otDurationPerPerson > 4 || otDurationPerPerson < 0) {
                     throw new BadRequestException(
-                        `Too many OT hours(${otDurationPerPerson} hr. / worker). Please select more workers`
+                        `Too many OT hours(${`${Math.floor(otDurationPerPerson)} ชม. ${((otDurationPerPerson-Math.floor(otDurationPerPerson))*60).toFixed(0)} นาที`} hr. / worker). Please select more workers`
                     );
                 }
 
@@ -204,11 +204,8 @@ export class RequestService {
 
                 // Check if ot duration is took too long
                 if (otDurationPerPerson > 4 || otDurationPerPerson < 0) {
-                    if (otDurationPerPerson) {
-                        throw new BadRequestException(`Insufficient OT hours`);
-                    }
                     throw new BadRequestException(
-                        `Too many OT hours(${otDurationPerPerson} hr. / worker). Please select more workers`
+                        `Too many OT hours(${`${Math.floor(otDurationPerPerson)} ชม. ${((otDurationPerPerson-Math.floor(otDurationPerPerson))*60).toFixed(0)} นาที`}} hr. / worker). Please select more workers`
                     );
                 }
                 values = accounts.reduce((str, account, currentIndex) => {
