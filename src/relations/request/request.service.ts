@@ -78,56 +78,66 @@ export class RequestService {
         let otDurationPerPerson: number;
 
         // validate body
-        if (!isNumber(body.quantity)&&body.method!="manual_select_worker"&&body.method!="assignEveryone")
+        if (
+            !isNumber(body.quantity) &&
+            body.method != 'manual_select_worker' &&
+            body.method != 'assignEveryone'
+        )
             throw new BadRequestException('quantity must be an integer');
         if (!isDate(new Date(body.date)))
             throw new BadRequestException('wrong date format');
 
         switch (body.method) {
-
             case 'assignByCheckin':
                 switch (body.unit) {
                     case 'hour':
                         // find all worker in shift
-                        const allAccounts: AccountDto[] = await this.workOnService.getAccountIdSortByCheckIn(
-                            body.shiftCode
-                        );
+                        const allAccounts: AccountDto[] =
+                            await this.workOnService.getAccountIdSortByCheckIn(
+                                body.shiftCode
+                            );
 
                         // calculate minimun worker to meet given ot duration
-                        for(let i=1; i <= allAccounts.length; i++){
-                            const selectedAccount: AccountDto[] = allAccounts.slice(0, i);
-                            const otDurationPerPerson = await this.getOtDurationPerPersonOfShift(
-                                body.shiftCode,
-                                selectedAccount
-                            );
-                                if(otDurationPerPerson <= body.quantity){
-                                    accounts = [...selectedAccount];
-                                    break;
-                                }
+                        for (let i = 1; i <= allAccounts.length; i++) {
+                            const selectedAccount: AccountDto[] =
+                                allAccounts.slice(0, i);
+                            const otDurationPerPerson =
+                                await this.getOtDurationPerPersonOfShift(
+                                    body.shiftCode,
+                                    selectedAccount
+                                );
+                            if (otDurationPerPerson <= body.quantity) {
+                                accounts = [...selectedAccount];
+                                break;
+                            }
                         }
-                        throw new BadRequestException(`insufficient OT duration (${body.quantity} hr.)`)
-                    
-                    case 'person':
-                        accounts = await this.workOnService.getAccountIdSortByCheckIn(
-                            body.shiftCode,
-                            body.quantity
+                        throw new BadRequestException(
+                            `insufficient OT duration (${body.quantity} hr.)`
                         );
-        
+
+                    case 'person':
+                        accounts =
+                            await this.workOnService.getAccountIdSortByCheckIn(
+                                body.shiftCode,
+                                body.quantity
+                            );
+
                         // handle empty worker in shift
                         if (accounts.length == 0)
                             throw new BadRequestException('no worker in shift');
-        
-                        otDurationPerPerson = await this.getOtDurationPerPersonOfShift(
-                            body.shiftCode,
-                            accounts
-                        );
-                        break
+
+                        otDurationPerPerson =
+                            await this.getOtDurationPerPersonOfShift(
+                                body.shiftCode,
+                                accounts
+                            );
+                        break;
                     default:
                         throw new BadRequestException(`no unit ${body.unit}`);
                 }
 
                 // Check if ot duration is took too long
-                if (otDurationPerPerson > 4) {
+                if (otDurationPerPerson > 4 || otDurationPerPerson < 0) {
                     throw new BadRequestException(
                         `Too many OT hours(${otDurationPerPerson} hr.). Please select more workers`
                     );
@@ -160,7 +170,7 @@ export class RequestService {
                 );
 
                 // Check if ot duration is took too long
-                if (otDurationPerPerson > 4) {
+                if (otDurationPerPerson > 4 || otDurationPerPerson < 0) {
                     throw new BadRequestException(
                         `Too many OT hours(${otDurationPerPerson} hr. / worker). Please select more workers`
                     );
@@ -193,7 +203,10 @@ export class RequestService {
                 );
 
                 // Check if ot duration is took too long
-                if (otDurationPerPerson > 4) {
+                if (otDurationPerPerson > 4 || otDurationPerPerson < 0) {
+                    if (otDurationPerPerson) {
+                        throw new BadRequestException(`Insufficient OT hours`);
+                    }
                     throw new BadRequestException(
                         `Too many OT hours(${otDurationPerPerson} hr. / worker). Please select more workers`
                     );
@@ -353,12 +366,29 @@ export class RequestService {
         const accountLastIndex = accounts.length - 1;
 
         //get shift details
-        const shift = await this.shiftService.getShiftById(shiftCode)
-        const request_list = await this.getAllRequestByShift_id(shiftCode)
-        const shift_OT_time = request_list.filter((req)=>req.req_status==="ยอมรับ").length!=0?Math.max(...request_list.filter((req)=>req.req_status==="ยอมรับ").map((req)=>req.number_of_hour)):0
-        const shift_start_time = moment(`${moment(shift.date).format("YYYY-MM-DD")} ${shift.shift_time}`, "YYYY-MM-DD HH:mm:ss")
-        const shift_plan_end_time = moment(`${moment(shift.date).format("YYYY-MM-DD")} ${shift.shift_time}`, "YYYY-MM-DD HH:mm:ss").add(8,'hours')
-        const shift_OT_end_time = moment(`${moment(shift.date).format("YYYY-MM-DD")} ${shift.shift_time}`, "YYYY-MM-DD HH:mm:ss").add(8+shift_OT_time,'hours')
+        const shift = await this.shiftService.getShiftById(shiftCode);
+        const request_list = await this.getAllRequestByShift_id(shiftCode);
+        const shift_OT_time =
+            request_list.filter((req) => req.req_status === 'ยอมรับ').length !=
+            0
+                ? Math.max(
+                      ...request_list
+                          .filter((req) => req.req_status === 'ยอมรับ')
+                          .map((req) => req.number_of_hour)
+                  )
+                : 0;
+        const shift_start_time = moment(
+            `${moment(shift.date).format('YYYY-MM-DD')} ${shift.shift_time}`,
+            'YYYY-MM-DD HH:mm:ss'
+        );
+        const shift_plan_end_time = moment(
+            `${moment(shift.date).format('YYYY-MM-DD')} ${shift.shift_time}`,
+            'YYYY-MM-DD HH:mm:ss'
+        ).add(8, 'hours');
+        const shift_OT_end_time = moment(
+            `${moment(shift.date).format('YYYY-MM-DD')} ${shift.shift_time}`,
+            'YYYY-MM-DD HH:mm:ss'
+        ).add(8 + shift_OT_time, 'hours');
 
         const values = accounts.reduce((str, account, currentIndex) => {
             return (
@@ -374,39 +404,74 @@ export class RequestService {
             WHERE account_id IN(${values})
         `;
 
-        const productRemain = async(): Promise<number> =>{
-            if(moment().isBefore(shift_OT_end_time)){
+        const productRemain = async (): Promise<number> => {
+            if (moment().isBefore(shift_OT_end_time)) {
                 //Prediction OT product from ideal performance of OT plan
-                const ideal_OT_predict_product = await Promise.all(request_list.map(async(req_data)=>{
-                    if(req_data.req_status=="ยอมรับ"){
-                        const performance = await this.accountService.getPerformanceByID(req_data.account_id)
-                        return parseFloat(performance)*req_data.number_of_hour
-                    }else{
-                        return 0
-                    }
-                })).then(products => products.reduce((sum, product)=> sum+product,0))
-                
+                const ideal_OT_predict_product = await Promise.all(
+                    request_list.map(async (req_data) => {
+                        if (req_data.req_status == 'ยอมรับ') {
+                            const performance =
+                                await this.accountService.getPerformanceByID(
+                                    req_data.account_id
+                                );
+                            return (
+                                parseFloat(performance) *
+                                req_data.number_of_hour
+                            );
+                        } else {
+                            return 0;
+                        }
+                    })
+                ).then((products) =>
+                    products.reduce((sum, product) => sum + product, 0)
+                );
+
                 //check shift started?
-                if(moment().isBefore(shift_start_time)){
-                    const predict_product_in_shift_time = parseFloat(shift.ideal_performance)*8
-                    return parseFloat(shift.product_target)-(predict_product_in_shift_time+ideal_OT_predict_product)
-                }else{
+                if (moment().isBefore(shift_start_time)) {
+                    const predict_product_in_shift_time =
+                        parseFloat(shift.ideal_performance) * 8;
+                    return (
+                        parseFloat(shift.product_target) -
+                        (predict_product_in_shift_time +
+                            ideal_OT_predict_product)
+                    );
+                } else {
                     //if started
                     //Check on shift_time case or on OT_time case
-                    if(moment().isBefore(shift_plan_end_time)){
+                    if (moment().isBefore(shift_plan_end_time)) {
                         //if on shift_time case
-                        const remainint_time = moment.duration(moment().diff(shift_plan_end_time)).asHours()
-                        return parseFloat(shift.product_target)-(parseFloat(shift.success_product_in_shift_time)+(remainint_time*shift.actual_performance)+ideal_OT_predict_product) 
-                    }else{
+                        const remainint_time = moment
+                            .duration(shift_plan_end_time.diff(moment()))
+                            .asHours();
+                        console.error(
+                            remainint_time,
+                            shift.actual_performance,
+                            parseFloat(shift.success_product_in_shift_time),
+                            ideal_OT_predict_product
+                        );
+                        return (
+                            parseFloat(shift.product_target) -
+                            (parseFloat(shift.success_product_in_shift_time) +
+                                remainint_time * shift.actual_performance +
+                                ideal_OT_predict_product)
+                        );
+                    } else {
                         //if on OT time case
-                        const remainint_time = moment.duration(moment().diff(shift_OT_end_time)).asHours()
-                        return parseFloat(shift.product_target)-(parseFloat(shift.success_product_in_shift_time)+parseFloat(shift.success_product_in_OT_time)+(remainint_time*shift.actual_performance))
+                        const remainint_time = moment
+                            .duration(shift_OT_end_time.diff(moment()))
+                            .asHours();
+                        return (
+                            parseFloat(shift.product_target) -
+                            (parseFloat(shift.success_product_in_shift_time) +
+                                parseFloat(shift.success_product_in_OT_time) +
+                                remainint_time * shift.actual_performance)
+                        );
                     }
                 }
-            }else{
-                throw new BadRequestException("Shift finished")
+            } else {
+                throw new BadRequestException('Shift finished');
             }
-        }
+        };
 
         const sumPerformance: number = await this.cnn
             .query(sumPerformanceQuery)
@@ -422,7 +487,7 @@ export class RequestService {
             });
 
         // // calulate needed ot duration
-        return await productRemain()/sumPerformance;
+        return (await productRemain()) / sumPerformance;
     }
 
     public async getRequestByAccountId(accId: string) {
