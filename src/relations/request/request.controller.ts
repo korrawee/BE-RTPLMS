@@ -13,11 +13,12 @@ import { CreateOtRequestDto } from './dto/CreateOtRequest.dto';
 import { DeleteOtRequest } from './dto/DeleteOtRequest.dto';
 import { UpdateOtRequestDto } from './dto/UpdateOtRequest.dto';
 import { RequestService } from './request.service';
+import { AccountService } from 'src/account/account.service';
 
 @Injectable()
 @Controller('request')
 export class RequestController {
-    constructor(private readonly reqService: RequestService) {}
+    constructor(private readonly reqService: RequestService, private readonly accountService: AccountService) {}
 
     @Get('/shifts/:shiftCode')
     public async getAllRequest(
@@ -26,6 +27,12 @@ export class RequestController {
         return await this.reqService.getAllRequestByShift_id(
             shiftCode,
         );
+    }
+
+    @Post('/getOTDurationPerPerson/:shiftCode')
+    public async getOTDurationPerPerson(@Body() body, @Param('shiftCode') shiftCode: string){
+        const accounts = await this.accountService.findByIds(body.accountIds);
+        return await this.reqService.getOtDurationPerPersonOfShift(shiftCode,accounts)
     }
 
     @Post()

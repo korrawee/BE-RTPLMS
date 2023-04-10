@@ -106,7 +106,7 @@ export class RequestService {
                                     body.shiftCode,
                                     selectedAccount
                                 );
-                            if (otDurationPerPerson <= body.quantity) {
+                            if (otDurationPerPerson.duration <= body.quantity) {
                                 accounts = [...selectedAccount];
                                 break;
                             }
@@ -130,7 +130,7 @@ export class RequestService {
                             await this.getOtDurationPerPersonOfShift(
                                 body.shiftCode,
                                 accounts
-                            );
+                            ).then((res)=>res.duration);
                         break;
                     default:
                         throw new BadRequestException(`no unit ${body.unit}`);
@@ -167,7 +167,7 @@ export class RequestService {
                 otDurationPerPerson = await this.getOtDurationPerPersonOfShift(
                     body.shiftCode,
                     accounts
-                );
+                ).then((res)=>res.duration);
 
                 // Check if ot duration is took too long
                 if (otDurationPerPerson > 4 || otDurationPerPerson < 0) {
@@ -200,7 +200,7 @@ export class RequestService {
                 otDurationPerPerson = await this.getOtDurationPerPersonOfShift(
                     body.shiftCode,
                     accounts
-                );
+                ).then((res)=>res.duration);
 
                 // Check if ot duration is took too long
                 if (otDurationPerPerson > 4 || otDurationPerPerson < 0) {
@@ -352,10 +352,10 @@ export class RequestService {
         return res;
     }
 
-    private async getOtDurationPerPersonOfShift(
+    public async getOtDurationPerPersonOfShift(
         shiftCode: string,
         accounts: AccountDto[]
-    ): Promise<number> {
+    ){
         // validate parameter
         if (!isString(shiftCode))
             throw new BadRequestException('shift code must be string');
@@ -440,12 +440,6 @@ export class RequestService {
                         const remainint_time = moment
                             .duration(shift_plan_end_time.diff(moment()))
                             .asHours();
-                        console.error(
-                            remainint_time,
-                            shift.actual_performance,
-                            parseFloat(shift.success_product_in_shift_time),
-                            ideal_OT_predict_product
-                        );
                         return (
                             parseFloat(shift.product_target) -
                             (parseFloat(shift.success_product_in_shift_time) +
@@ -483,8 +477,8 @@ export class RequestService {
                 throw new BadRequestException(e.message);
             });
 
-        // // calulate needed ot duration
-        return (await productRemain()) / sumPerformance;
+         // calulate needed ot duration
+        return {duration: (await productRemain()) / sumPerformance}
     }
 
     public async getRequestByAccountId(accId: string) {
