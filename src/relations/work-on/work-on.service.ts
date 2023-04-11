@@ -114,12 +114,18 @@ export class WorkOnService {
         const res = await this.cnn
             .query(query)
             .then(async (res: dbResponse) => {
-                /* Create log */
-                // ==================================================
-                // ==================================================
                 const shift: ShiftDto = await this.shiftService.getShiftById(
                     body.shiftCode
                 );
+
+                // Update all member 
+                await this.shiftService.updateShift(
+                    {shift_code: shift.shift_code, all_member: shift.all_member + 1}
+                );
+
+                /* Create log */
+                // ==================================================
+                // ==================================================
                 const department: DepartmentforDashboardDto =
                     await this.departmentService.getDepartmentById(
                         shift.department_id
@@ -163,12 +169,18 @@ export class WorkOnService {
         const res = await this.cnn
             .query(query)
             .then(async (res: dbResponse) => {
-                // Create log
-                // ==================================================
-                // ==================================================
                 const shift: ShiftDto = await this.shiftService.getShiftById(
                     body.shiftCode
                 );
+
+                // Update all member 
+                await this.shiftService.updateShift(
+                    {shift_code: shift.shift_code, all_member: shift.all_member - 1}
+                );
+                
+                /* Create log */
+                // ==================================================
+                // ==================================================
                 const department: DepartmentforDashboardDto =
                     await this.departmentService.getDepartmentById(
                         shift.department_id
