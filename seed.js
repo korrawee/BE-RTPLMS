@@ -182,7 +182,7 @@ const seed_DB = async () => {
                 1000,
                 moment().isBefore(moment(`${row_data.date} ${row_data.shift_time}`, "M/D/YYYY HH:mm"))?0:moment().isAfter(moment(`${row_data.date} ${row_data.shift_time}`, "M/D/YYYY HH:mm").add(8,'hours'))?randomInt(900,1050):randomInt(10,300),
                 0.0,
-                70.0,
+                moment().isBefore(moment(`${row_data.date} ${row_data.shift_time}`, "M/D/YYYY HH:mm"))?0:moment().isAfter(moment(`${row_data.date} ${row_data.shift_time}`, "M/D/YYYY HH:mm").add(8,'hours'))?70.0:60.0,
                 7,
                 moment().isBefore(moment(`${row_data.date} ${row_data.shift_time}`, "M/D/YYYY HH:mm"))?0:moment().isAfter(moment(`${row_data.date} ${row_data.shift_time}`, "M/D/YYYY HH:mm").add(8,'hours'))?7:6,
                 row_data.department_id,
