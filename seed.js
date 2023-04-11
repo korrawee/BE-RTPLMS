@@ -209,6 +209,7 @@ const seed_DB = async () => {
                               to_timestamp($4, 'MM/DD/YYYY')
                             );`;
         let couter = 1
+        let couter2 = 1
         for (const row_data of work_onData) {
             await client.query(insertWork_onQuery, [
                 row_data.account_id,
@@ -228,7 +229,7 @@ const seed_DB = async () => {
                 },
                 row_data.date,
             ]);
-            if(parseInt(row_data.shift_code)%18 == 1 && couter < 8){
+            if(parseInt(row_data.shift_code)%18 == 1 && couter2++ < 8){
                 await client.query(insertWork_onQuery,[
                     mawhang_data.account_id,
                     row_data.shift_code,
@@ -291,7 +292,7 @@ const seed_DB = async () => {
                     mawhang_data.account_id,
                     row_data.date,
                     randomInt(1,4),
-                    moment(row_data.date,'MM/DD/YYYY').isBefore(moment())? couter%3==1?"ปฏิเสธ":"ยอมรับ" :'รอดำเนินการ',
+                    moment(row_data.date,'MM/DD/YYYY').isBefore(moment(moment().format("MM/DD/YYYY"),"MM/DD/YYYY"))? couter%3==1?"ปฏิเสธ":"ยอมรับ" :'รอดำเนินการ',
                     mawhang_data.mng_id,
                     row_data.date
                 ])
