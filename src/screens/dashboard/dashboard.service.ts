@@ -15,7 +15,7 @@ export class DashboardService {
         @InjectClient() private readonly cnn: Client
     ) {}
 
-    public async getData(mngId: string) {
+    public async getData(mngId: string, limit: string, currentPage: number): Promise<DashboardCardDto> {
         const departments: DepartmentforDashboardDto[] =
             await this.departmentService.getDepartmentsById(mngId);
         const departmentId: string[] = departments.map(
@@ -25,11 +25,28 @@ export class DashboardService {
         );
         const shifts: ShiftforDashboardDto[] =
             await this.shiftService.getShiftsById(departmentId);
-        const data: DashboardCardDto = {
-            department: departments,
-            shifts: shifts,
-        };
+        
+        // get all data
+        if(limit === '*'){
+            return {
+                department: departments,
+                shifts: shifts
+            };
+        }
 
-        return data;
+        // default case
+        if(currentPage == 1){
+            return {
+                department: departments.slice(+limit),
+                shifts: shifts.slice(+limit),
+            };
+        }else{
+            const startIndex = +limit * (currentPage - 1);
+            const EndIndex = +limit * currentPage;
+            return {
+                department: departments.slice(startIndex, EndIndex),
+                shifts: shifts.slice(startIndex, EndIndex),
+            };
+        }
     }
 }
