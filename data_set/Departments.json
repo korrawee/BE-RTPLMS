@@ -1,38 +1,6 @@
-[
-    {
-        "department_id": "01GVE2B4NTSVC82KDXD9Z477M6",
-        "department_name": "Boiling",
-        "mng_id": "29-6308534",
-        "factory_id": "01GVE2A4WMS9BSKEP25011PYRP"
-    },
-    {
-        "department_id": "01GVE2B4BXAWKBEDYT25MR77QX",
-        "department_name": "Packing",
-        "mng_id": "74-8928164",
-        "factory_id": "01GVE2A4WMS9BSKEP25011PYRP"
-    },
-    {
-        "department_id": "01GVE2B3RJXB0NFK75DBPYYCX0",
-        "department_name": "Logistic",
-        "mng_id": "29-6308534",
-        "factory_id": "01GVE2A4WMS9BSKEP25011PYRP"
-    },
-    {
-        "department_id": "01GVE2B3VTB6P3H1T315G4QG8Q",
-        "department_name": "Stock",
-        "mng_id": "74-8928164",
-        "factory_id": "01GVE2A4WMS9BSKEP25011PYRP"
-    },
-    {
-        "department_id": "01GVE2B4CR72S877224C3823QX",
-        "department_name": "Boiling 2",
-        "mng_id": "29-6308534",
-        "factory_id": "01GVE2A4WMS9BSKEP25011PYRP"
-    },
-    {
-        "department_id": "01GVE2B3THF30KZSFR6YESR1R4",
-        "department_name": "Packing 2",
-        "mng_id": "29-6308534",
-        "factory_id": "01GVE2A4WMS9BSKEP25011PYRP"
-    }
-]
+[{"department_id":"01GY34P522D6QD5R49WW0JA62Q","department_name":"Boiling","mng_id":"74-8928164","factory_id":"01GVE2A4WMS9BSKEP25011PYRP"},
+{"department_id":"01GY34P525FQYR5BR4GXCVDXBB","department_name":"Packing","mng_id":"74-8928164","factory_id":"01GVE2A4WMS9BSKEP25011PYRP"},
+{"department_id":"01GY34P52V8WR9VY0FY3K81NAW","department_name":"Logistic","mng_id":"29-6308534","factory_id":"01GVE2A4WMS9BSKEP25011PYRP"},
+{"department_id":"01GY34P53NDJ2F72ZYKJ4HSVE5","department_name":"Stock","mng_id":"74-8928164","factory_id":"01GVE2A4WMS9BSKEP25011PYRP"},
+{"department_id":"01GY34P546X6EPCXZNFEHCRKCY","department_name":"Boiling 2","mng_id":"29-6308534","factory_id":"01GVE2A4WMS9BSKEP25011PYRP"},
+{"department_id":"01GY34P53Q4W4VHQWW576PAZBZ","department_name":"Packing 2","mng_id":"29-6308534","factory_id":"01GVE2A4WMS9BSKEP25011PYRP"}]
