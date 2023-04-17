@@ -137,6 +137,18 @@ const seed_DB = async () => {
     };
 
     //Department
+    const addition_department = [
+        {department_id: "additiondep1", department_name: "Logistic2", mng_id: "74-8928164", factory_id:"01GVE2A4WMS9BSKEP25011PYRP"},
+        {department_id: "additiondep2", department_name: "Logistic3", mng_id: "74-8928164", factory_id:"01GVE2A4WMS9BSKEP25011PYRP"},
+        {department_id: "additiondep3", department_name: "Boiling2", mng_id: "74-8928164", factory_id:"01GVE2A4WMS9BSKEP25011PYRP"},
+        {department_id: "additiondep4", department_name: "frying", mng_id: "74-8928164", factory_id:"01GVE2A4WMS9BSKEP25011PYRP"},
+        {department_id: "additiondep5", department_name: "frying2", mng_id: "74-8928164", factory_id:"01GVE2A4WMS9BSKEP25011PYRP"},
+        {department_id: "additiondep6", department_name: "Logistic2", mng_id: "29-6308534", factory_id:"01GVE2A4WMS9BSKEP25011PYRP"},
+        {department_id: "additiondep7", department_name: "Logistic3", mng_id: "29-6308534", factory_id:"01GVE2A4WMS9BSKEP25011PYRP"},
+        {department_id: "additiondep8", department_name: "Boiling2", mng_id: "29-6308534", factory_id:"01GVE2A4WMS9BSKEP25011PYRP"},
+        {department_id: "additiondep9", department_name: "frying", mng_id: "29-6308534", factory_id:"01GVE2A4WMS9BSKEP25011PYRP"},
+        {department_id: "additiondep10", department_name: "frying2", mng_id: "29-6308534", factory_id:"01GVE2A4WMS9BSKEP25011PYRP"},
+    ]
     const departmentRawData = fs.readFileSync(
         `${dataset_dir_path}/Departments.json`
     );
@@ -149,6 +161,14 @@ const seed_DB = async () => {
                                   $4
                                 );`;
         for (const row_data of departmentData) {
+            await client.query(insertDepartmentQuery, [
+                row_data.department_id,
+                row_data.department_name,
+                row_data.mng_id,
+                row_data.factory_id,
+            ]);
+        }
+        for (const row_data of addition_department) {
             await client.query(insertDepartmentQuery, [
                 row_data.department_id,
                 row_data.department_name,
