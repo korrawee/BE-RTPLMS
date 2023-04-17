@@ -478,7 +478,7 @@ export class RequestService {
             });
 
          // calulate needed ot duration
-        return {duration: (await productRemain()) / sumPerformance}
+        return {duration: Math.ceil((await productRemain()) / sumPerformance)}
     }
 
     public async getRequestByAccountId(accId: string) {
