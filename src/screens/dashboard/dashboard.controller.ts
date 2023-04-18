@@ -5,7 +5,7 @@ export class DashboardController {
     constructor(private readonly dashboardService: DashboardService) {}
 
     @Get('/:mng_id')
-    async getData(@Param('mng_id') mngId: string, @Query('limit') limit: string, @Query('currrentPage') currentPage: number) {
+    async getData(@Param('mng_id') mngId: string, @Query('limit') limit: string, @Query('currentPage') currentPage: number) {
         const data = await this.dashboardService.getData(mngId, limit || '*', currentPage || 1);
         return data;
     }

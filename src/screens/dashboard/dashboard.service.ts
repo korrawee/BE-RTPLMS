@@ -37,8 +37,8 @@ export class DashboardService {
         // default case
         if(currentPage == 1){
             return {
-                department: departments.slice(+limit),
-                shifts: shifts.slice(+limit),
+                department: departments.slice(0,+limit),
+                shifts: shifts.slice(0,+limit),
             };
         }else{
             const startIndex = +limit * (currentPage - 1);
