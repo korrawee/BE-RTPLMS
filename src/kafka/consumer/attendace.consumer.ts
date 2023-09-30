@@ -54,23 +54,32 @@ export class AttendanceConsumer implements OnModuleInit {
             const payload: IUpdateAttendance =
                 JSON.parse(message.value.toString());
             console.log('payload',payload);
+            //Get check-in check-out data of worker
             const workOnOld: WorkOnDto = await this.workOnService.getOneWorkOn(payload.account_id, payload.shift_code);
-            // Update attendace
+
+            ///////////////////////////////////////// Update attendace ///////////////////////////////////////////
+            //Update check-in check-out data of worker
             const workOnUpdated: WorkOnDto = await this.workOnService.update(payload);
+            //Get shift detail data that worker work in
             const shift: ShiftDto = await this.shiftService.getShiftById(workOnUpdated.shift_code);
+            //Set shift variable to suit with parameter model of updateShift method by delete property actual_performance
             delete shift.actual_performance;
             
+            //check if in check-in case we will update add number of check-in member in shift by 1 but if not we not increase number of check-in member
             if(!workOnOld.checkin_time && workOnUpdated.checkin_time){
                 await this.shiftService.updateShift({...shift, checkin_member: shift.checkin_member + 1});
             }else{
                 await this.shiftService.updateShift({...shift})
             }
             console.log('shift', shift);
-            
+            //////////////////////////////////////////////////////////////////////////////////////////////////////
+
+            //Get department detail that worker work in
             const department: DepartmentforDashboardDto = await this.departmentService.getDepartmentById(shift.department_id);
             console.log('departmetn', department)
        
             // Notices to client
+            //Push message to websocket to trigger frontend side of department's manager to fetch new data
             if(this.sendNoticeToClient(department.mng_id)){
                 console.log('Update consumed attendance successfully.');
             }else{
