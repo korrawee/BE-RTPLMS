@@ -68,9 +68,8 @@ export class AttendanceConsumer implements OnModuleInit {
             //check if in check-in case we will update add number of check-in member in shift by 1 but if not we not increase number of check-in member
             if(!workOnOld.checkin_time && workOnUpdated.checkin_time){
                 await this.shiftService.updateShift({...shift, checkin_member: shift.checkin_member + 1});
-            }else{
-                await this.shiftService.updateShift({...shift})
             }
+            
             console.log('shift', shift);
             //////////////////////////////////////////////////////////////////////////////////////////////////////
 
